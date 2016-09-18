@@ -1,0 +1,15 @@
+{
+    ".deps_version": 2, 
+    "g++ -O2 -c ./main.cpp -o ./main.o": {
+        ".": "input-5058f1af8388633f609cadb75a75dc9d", 
+        "imprimir.h": "input-0f2d2f3d6cd47805d5af03b43bced520", 
+        "main.cpp": "input-27f15df02c0d1a5b38cc7d0cac492b50", 
+        "main.o": "output-427dd99682bc56a3c7553b206b4ebfca", 
+        "typedefs.h": "input-300e4ede9b39d41b16fe504d7b164225"
+    }, 
+    "g++ -o ./tp ./main.o": {
+        ".": "input-5058f1af8388633f609cadb75a75dc9d", 
+        "main.o": "input-427dd99682bc56a3c7553b206b4ebfca", 
+        "tp": "output-5966fcdccd538dfd65fc2a0b99deb4e8"
+    }
+}
