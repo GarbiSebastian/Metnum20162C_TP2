@@ -86,16 +86,12 @@ void armarFold(ifstream &archivoEntrada, matrizEntero &X, vectorEntero &labels, 
 	trainLabels.clear();
 	testLabels.clear();
 	string linea;
-	//archivoEntrada >> linea;
 	getline(archivoEntrada,linea,'\n');
 	stringstream ss(linea);
 	unsigned int cantMuestras = X.size();
 	int traintest;
-	//cout << linea << endl;
-	//cout << ss << linea << endl;
 	for(unsigned int i = 0;i< cantMuestras;i++){
 		ss >> traintest;
-		//cout << traintest << endl;
 		vectorReal digito(X[i].begin(), X[i].end());
 		if(traintest==0){
 			testLabels.push_back(labels[i]);
@@ -105,7 +101,6 @@ void armarFold(ifstream &archivoEntrada, matrizEntero &X, vectorEntero &labels, 
 			train.push_back(digito);
 		}
 	}
-	//exit(0);
 }
 
 int main(int argc, char** argv){
