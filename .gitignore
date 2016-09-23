@@ -28,3 +28,6 @@
 *.out
 *.app
 TP2/src/.deps
+main
+tp
+*.pyc

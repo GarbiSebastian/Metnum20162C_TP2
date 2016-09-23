@@ -134,9 +134,21 @@ int main(int argc, char** argv){
 		armarFold(archivoEntrada,X,labels,train,test,trainLabels,testLabels);
 		cout << "fold " << (i_fold+1) << " de " << K_folds << endl << "train: " <<  train.size() << endl << "test: " << test.size() << endl;
 		//preprocesamiento de la matriz de entrada -> devuelve matriz de conversión 
+		//preprocesar con PCA -> Escribir los alfa autovalores en salida
+		//preprocesar con PLS-DA -> Escribir los gamma autovalores en salida
+		//etiquetar con PCA -> Preparar vector para matriz de confusion
+		//etiquetar con PCA -> Preparar vector para matriz de confusion
 	}
 	
-	
-	
+	//levantar matriz de test real
+	switch(metodo){
+		case 1://kNN
+			break;
+		case 2://PCA+kNN
+			break;
+		case 3://PLS-DA
+			break;
+	}
+	//Escribir archivo de salida para Kaggle con las etiquetas calculadas
 	return 0;
 }
