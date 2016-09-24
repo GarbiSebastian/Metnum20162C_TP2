@@ -116,7 +116,7 @@ void prueba5(){
 
 void prueba6(){
 	unsigned int cant_muestras = 200;
-	unsigned int k_vecinos = 5;
+	unsigned int k_vecinos = 10;
 	unsigned int tam_imagen = 50;
 	matrizReal train(cant_muestras, vectorReal(tam_imagen, 0));
 	vectorReal imagen(tam_imagen, 0);
@@ -131,6 +131,29 @@ void prueba6(){
 	buscar(k_vecinos, train, imagen, indices , distancias);
 	imprimir(indices);
 	imprimir(distancias);
+	
+}
+
+void prueba7(){
+	unsigned int cant_muestras = 200;
+	unsigned int k_vecinos = 10;
+	unsigned int tam_imagen = 50;
+	matrizReal train(cant_muestras, vectorReal(tam_imagen, 0));
+	vectorReal imagen(tam_imagen, 0);
+	vectorReal distancias(k_vecinos, 0);
+	vectorEntero indices(k_vecinos, 0);
+	vectorEntero labels(cant_muestras, 0);
+	unsigned int cant_categorias = 4;
+	
+	for (unsigned int i = 0; i < cant_muestras; i++){
+		train[i][i%tam_imagen] = i;
+		labels[i] = i % cant_categorias;
+	}
+	
+	imagen[5] = 100;
+	buscar(k_vecinos, train, imagen, indices , distancias);
+	
+	cout << votar(cant_categorias, labels, indices, distancias) << endl ;
 	
 }
 
@@ -153,5 +176,8 @@ int main(int argc, char** argv){
 	cout << endl << "prueba 6 Inicio" << endl;
 	prueba6();
 	cout << endl << "prueba 6 OK" << endl;
+	cout << endl << "prueba 7 Inicio" << endl;
+	prueba7();
+	cout << endl << "prueba 7 OK" << endl;
 	return 0;
 }

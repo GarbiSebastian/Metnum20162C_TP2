@@ -42,3 +42,20 @@ void buscar(int k_vecinos, matrizReal & train, vectorReal & imagen, vectorEntero
 	
 	
 }
+
+int votar(unsigned int cant_categorias, vectorEntero & labels, vectorEntero & indices , vectorReal &distancias){
+	vectorEntero bucket(cant_categorias, 0);
+	for(unsigned int i = 0; i < indices.size(); i++){
+		bucket[labels[indices[i]]] ++;
+	}
+	unsigned int j = 0;
+	int max = 0;
+	for(unsigned int i = 0; i < cant_categorias; i++){
+		if (bucket[i] > max){
+			max = bucket[i];
+			j = i;
+		}
+	}
+	imprimir(bucket);
+	return j;
+}
