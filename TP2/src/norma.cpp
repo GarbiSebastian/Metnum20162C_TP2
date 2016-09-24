@@ -6,7 +6,7 @@ using namespace std;
 
 double norma2(vectorReal v){
 	double norma=0.0;
-	for(unsigned int i = 1; i < v.size();i++){
+	for(unsigned int i = 0; i < v.size();i++){
 		norma+= v[i]*v[i];
 	}
 	return sqrt(norma);
@@ -14,7 +14,7 @@ double norma2(vectorReal v){
 
 void normalizar(vectorReal &v){
 	double norma = norma2(v);
-	for(unsigned int i = 1; i < v.size();i++){
+	for(unsigned int i = 0; i < v.size();i++){
 		v[i]= v[i]/norma;
 	}
 }

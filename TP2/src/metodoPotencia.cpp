@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cmath>
 #include "metodoPotencia.h"
 #include "norma.h"
 #include <iostream>
@@ -15,12 +16,7 @@ double productoInterno(vectorReal &u, vectorReal &v, unsigned int k1, unsigned i
 double productoInterno(vectorReal &u, vectorReal &v) {
 	//assert(u.size()==v.size());
 	unsigned int k1=0,k2=u.size();
-	double sum = 0;
-	for (unsigned int i = k1; i <= k2; i++) {
-		sum += u[i] * v[i];
-	}
-	//return (sum < cotaCero ? 0.0 : sum);
-	return sum;
+	return productoInterno(u,v,k1,k2);
 }
 
 
@@ -49,21 +45,23 @@ double metodoPotencia(matrizReal &B, vectorReal &v, int niter, double epsilon) {
 	//Fin Para
 	//λ ← v'*Bv/(v'*v)
 	//Devolver λ, v .
-	vectorReal tmp(v.size(),0.0);
-	//assert(B.size() == v.size());
+	
+	assert(B.size() == v.size());
+	vectorReal tmp(v.size(),0);
 	v = randVector(v.size());
 	for (int i = 0; i < niter; i++) {
 		tmp= A_por_v(B, v);
 		normalizar(tmp);
-		cout << norma2(tmp);
-		if (norma2(resta(v, tmp)) <= epsilon) break; //si no cambio al menos epsilon en norma 2
+		assert(abs(norma2(tmp)-1) <= epsilon);
+		if (norma2(resta(v, tmp)) <= epsilon){
+			//cout << "salio con " << i << " iteraciones" << endl;
+			//break;
+		} //si no cambio al menos epsilon en norma 2
 		v = tmp;
 	}
-	//double normaCuadrada_v = pow(norma2(v), 2);
-	//vectorReal Bv = A_por_v(B,v);
-	//return productoEscalar(v,Bv)/normaCuadrada_v;//producto interno entre v y Bv
 	
-	//v siempre tiene norma uno entonces normaCuadrada_v es 1
+	//v siempre tiene norma uno entonces norma Cuadrada de v es 1
+	assert(norma2(v)-1 <= epsilon);
 	vectorReal Bv = A_por_v(B,v);
 	return productoInterno(v,Bv);//producto interno entre v y Bv
 }
