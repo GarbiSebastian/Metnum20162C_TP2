@@ -4,12 +4,12 @@
 
 using namespace std;
 
-double norma2(vectorReal &v){
-	double norma2=0;
+double norma2(vectorReal v){
+	double norma=0.0;
 	for(unsigned int i = 1; i < v.size();i++){
-		norma2+= v[i]*v[i];
+		norma+= v[i]*v[i];
 	}
-	return sqrt(norma2);
+	return sqrt(norma);
 }
 
 void normalizar(vectorReal &v){
