@@ -8,6 +8,8 @@
 #include <iostream>
 #include <cmath> 
 #include <iomanip>
+#include "src/knn.h"
+#include "src/knn.cpp"
 
 
 using namespace std;
@@ -111,16 +113,45 @@ void prueba5(){
 //	imprimir(v);
 }
 
+
+void prueba6(){
+	unsigned int cant_muestras = 200;
+	unsigned int k_vecinos = 5;
+	unsigned int tam_imagen = 50;
+	matrizReal train(cant_muestras, vectorReal(tam_imagen, 0));
+	vectorReal imagen(tam_imagen, 0);
+	vectorReal distancias(k_vecinos, 0);
+	vectorEntero indices(k_vecinos, 0);
+	
+	for (unsigned int i = 0; i < cant_muestras; i++){
+		train[i][i%tam_imagen] = i;
+	}
+	
+	imagen[5] = 100;
+	buscar(k_vecinos, train, imagen, indices , distancias);
+	imprimir(indices);
+	imprimir(distancias);
+	
+}
+
 int main(int argc, char** argv){
+	cout << endl << "prueba 1 Inicio" << endl;
 	prueba1();
 	cout << endl << "prueba 1 OK" << endl;
+	cout << endl << "prueba 2 Inicio" << endl;
 	prueba2();
 	cout << endl << "prueba 2 OK" << endl;
+	cout << endl << "prueba 3 Inicio" << endl;
 	prueba3();
 	cout << endl << "prueba 3 OK" << endl;
+	cout << endl << "prueba 4 Inicio" << endl;
 	prueba4();	
 	cout << endl << "prueba 4 OK" << endl;
+	cout << endl << "prueba 5 Inicio" << endl;
 	prueba5();	
 	cout << endl << "prueba 5 OK" << endl;
+	cout << endl << "prueba 6 Inicio" << endl;
+	prueba6();
+	cout << endl << "prueba 6 OK" << endl;
 	return 0;
 }

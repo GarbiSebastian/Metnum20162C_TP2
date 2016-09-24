@@ -4,21 +4,6 @@
 #include "norma.h"
 #include <iostream>
 
-double productoInterno(vectorReal &u, vectorReal &v, unsigned int k1, unsigned int k2) {
-	double sum = 0;
-	for (unsigned int i = k1; i <= k2; i++) {
-		sum += u[i] * v[i];
-	}
-	//return (sum < cotaCero ? 0.0 : sum);
-	return sum;
-}
-
-double productoInterno(vectorReal &u, vectorReal &v) {
-	//assert(u.size()==v.size());
-	unsigned int k1=0,k2=u.size();
-	return productoInterno(u,v,k1,k2);
-}
-
 
 vectorReal A_por_v(matrizReal& A, vectorReal& v) {
 	int n = A.size();
@@ -66,12 +51,6 @@ double metodoPotencia(matrizReal &B, vectorReal &v, int niter, double epsilon) {
 	return productoInterno(v,Bv);//producto interno entre v y Bv
 }
 
-vectorReal resta(vectorReal &x, vectorReal &y) {
-	//assert(x.size()==y.size());
-	vectorReal tmp(x.size(),0.0);
-	for (unsigned int i = 0; i < x.size(); i++) tmp[i] = (x[i] - y[i]);
-	return tmp;
-}
 
 vectorReal randVector(unsigned int n) {
 	vectorReal r(n, 0.0);
