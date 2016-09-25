@@ -6,24 +6,34 @@
 #include "imprimir.h"
 #include <sstream>
 #include <math.h>
+#include "knn.h"
 
 using namespace std;
 extern const string trainDB = "train.csv";
 extern const string testDB = "test.csv";
 extern const string config = "config.tp";
 
-void leerConfiguracionGlobal(int &niter, int &cantPixeles, int &cantMuestras){
+void leerConfiguracionGlobal(int &niter, int &cantPixeles, int &cantMuestras, int &cantTests){
 	ifstream archivoConfig(config.c_str());
 	if(archivoConfig.fail()){
 		niter = 1000;
 		cantPixeles=784;
 		cantMuestras=42000;
+		cantTests=18000;
 	}else{
-		cout << "Se utilizaran los valores de prueba del archivo \"config.tp\". Elimine dicho archivo para tomar los parámetros totales"<< endl;
 		archivoConfig >> niter;
 		archivoConfig >> cantPixeles;
 		archivoConfig >> cantMuestras;
-		cout << "niter: " << niter << endl <<  "cantPixeles: " << cantPixeles << endl << "cantMuestras: " << cantMuestras << endl;		
+		archivoConfig >> cantTests;
+		cout << endl
+			<< "----------------------------------------------------------------------------------------------------------------------" << endl
+			<< "|Se utilizaran los valores de prueba del archivo \"config.tp\". Elimine dicho archivo para tomar los parámetros totales"<< endl
+			<< "----------------------------------------------------------------------------------------------------------------------" << endl
+			<< "|niter: " << niter << endl
+			<< "|cantPixeles: " << cantPixeles << endl
+			<< "|cantMuestras: " << cantMuestras << endl
+			<< "|cantTests: " << cantTests << endl
+			<< "------------------------" << endl;
 	}
 }
 
@@ -38,7 +48,7 @@ void leerConfiguracionExperimento(ifstream &archivoEntrada,string &path, int &k_
 	//cout << descarte << endl;
 }
 
-void inicializar(int &metodo,ifstream &archivoEntrada,ofstream &archivoSalida, int &niter, int &cantPixeles, int &cantMuestras, string &path, int &k_vecinos, int &alfa_pca, int &gamma_plsda, int &K_folds,int argc, char** argv){
+void inicializar(int &metodo,ifstream &archivoEntrada,ofstream &archivoSalida, int &niter, int &cantPixeles, int &cantMuestras,int &cantTests, string &path, int &k_vecinos, int &alfa_pca, int &gamma_plsda, int &K_folds,int argc, char** argv){
 	if (argc < 4) {
 		cout << "Error de cantidad de parametros" << endl;
 		exit(0);
@@ -57,7 +67,7 @@ void inicializar(int &metodo,ifstream &archivoEntrada,ofstream &archivoSalida, i
 		cout << "Falla Archivo de salida" << endl;
 		exit(0);
 	}
-	leerConfiguracionGlobal(niter,cantPixeles, cantMuestras);
+	leerConfiguracionGlobal(niter, cantPixeles, cantMuestras, cantTests);
 	leerConfiguracionExperimento(archivoEntrada, path, k_vecinos, alfa_pca, gamma_plsda, K_folds);
 	//cout << "entrada: " << entrada << endl << "salida: " << salida << endl << "metodo: "<< metodo << endl;
 	//cout << "path: " << path << endl << "k_vecinos: " << k_vecinos << endl <<  "alfa_pca: " << alfa_pca << endl << "gamma_plsda: " << gamma_plsda << endl << "K_folds: " << K_folds << endl;
@@ -103,14 +113,40 @@ void armarFold(ifstream &archivoEntrada, matrizEntero &X, vectorEntero &labels, 
 	}
 }
 
+void armarMatrizTest(string path,matrizReal &X,int cantTests,int cantPixeles){
+	X = matrizReal(cantTests,vectorReal(cantPixeles,0));
+	ifstream archivoTest((path + testDB).c_str());
+	string linea;
+	string pixel;
+	archivoTest >> linea;//titulos para descartar
+	for(int i = 0;i < cantTests;i++){
+		archivoTest >> linea;
+		stringstream ss(linea);
+		for(int j=0;j < cantPixeles;j++){
+			getline(ss,pixel,',');
+			X[i][j] = atoi(pixel.c_str());
+		}
+	}
+}
+
+void armarTrainTestPosta(string path,matrizEntero &X, matrizReal &train, matrizReal &test, int cantMuestras,int cantTests,int cantPixeles){
+	train.clear();
+	test.clear();
+	for(int i = 0;i< cantMuestras;i++){
+		vectorReal digito(X[i].begin(), X[i].end());
+		train.push_back(digito);
+	}
+	armarMatrizTest(path,test,cantTests,cantPixeles);
+}
+
 int main(int argc, char** argv){
 	int metodo;
 	ifstream archivoEntrada;
 	ofstream archivoSalida;
-	int niter, cantPixeles, cantMuestras;
+	int niter, cantPixeles, cantMuestras, cantTests;
 	string path;
 	int k_vecinos, alfa_pca, gamma_plsda, K_folds;
-	inicializar(metodo,archivoEntrada,archivoSalida,niter, cantPixeles, cantMuestras,path,k_vecinos, alfa_pca, gamma_plsda, K_folds,argc,argv);
+	inicializar(metodo,archivoEntrada,archivoSalida,niter, cantPixeles, cantMuestras, cantTests, path,k_vecinos, alfa_pca, gamma_plsda, K_folds,argc,argv);
 	//int tamTest = cantMuestras/K_folds;
 	//int tamTrain = tamTest*(K_folds-1);
 	matrizEntero X(cantMuestras,vectorEntero(cantPixeles,0));//Inicializo una matriz con la cantidad de muestras a tomar y la cantidad de pixeles por muestra
@@ -135,15 +171,30 @@ int main(int argc, char** argv){
 		//etiquetar con PCA -> Preparar vector para matriz de confusion
 	}
 	
-	//levantar matriz de test real
+	
+	armarTrainTestPosta(path, X,train,test,cantMuestras,cantTests,cantPixeles);
+	
+	/*imprimir(train,archivoSalida);
+	archivoSalida << "--------------------------------------------------------------"<< endl;
+	imprimir(test,archivoSalida);
+	archivoSalida << "--------------------------------------------------------------"<< endl;
+	imprimir(labels,archivoSalida);*/
+	ofstream archivoKaggle("kagle.out");
+	vectorEntero indices;
+	vectorReal distancias;
 	switch(metodo){
 		case 1://kNN
+			for(unsigned int i =0; i < test.size();i++){
+				buscar(k_vecinos,train,test[i],indices,distancias);
+				archivoKaggle << votar(10,labels,indices,distancias)<<endl;
+			}
 			break;
 		case 2://PCA+kNN
 			break;
 		case 3://PLS-DA
 			break;
 	}
+	
 	//Escribir archivo de salida para Kaggle con las etiquetas calculadas
 	return 0;
 }

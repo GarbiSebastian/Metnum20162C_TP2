@@ -1,6 +1,5 @@
 #include "knn.h"
 
-
 using namespace std;
 real dameDistancia(vectorReal & u, vectorReal & v){
 	return norma2(resta(u,v));
@@ -21,26 +20,18 @@ void insertame(unsigned int indice, real distancia, vectorEntero &indices, vecto
 			indices[j-1] = indice;
 			j--;	
 		}
-		
-
 	}
-	
 }
 
 void buscar(int k_vecinos, matrizReal & train, vectorReal & imagen, vectorEntero & indices , vectorReal &distancias){
-	
 	indices = vectorEntero(k_vecinos, -1);
 	distancias = vectorReal(k_vecinos, -1);
-	
+
 	//busco vecinos mas cercanos
 	for (unsigned int i = 0; i < train.size() ; i++){
 		real distancia = dameDistancia(imagen , train[i]);
 		insertame(i, distancia, indices, distancias);
 	}
-	
-	
-	
-	
 }
 
 int votar(unsigned int cant_categorias, vectorEntero & labels, vectorEntero & indices , vectorReal &distancias){
@@ -56,6 +47,5 @@ int votar(unsigned int cant_categorias, vectorEntero & labels, vectorEntero & in
 			j = i;
 		}
 	}
-	imprimir(bucket);
 	return j;
 }

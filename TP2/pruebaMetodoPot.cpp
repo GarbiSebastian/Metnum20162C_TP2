@@ -129,8 +129,8 @@ void prueba6(){
 	
 	imagen[5] = 100;
 	buscar(k_vecinos, train, imagen, indices , distancias);
-	imprimir(indices);
-	imprimir(distancias);
+	//imprimir(indices);
+	//imprimir(distancias);
 	
 }
 
@@ -153,8 +153,25 @@ void prueba7(){
 	imagen[5] = 100;
 	buscar(k_vecinos, train, imagen, indices , distancias);
 	
-	cout << votar(cant_categorias, labels, indices, distancias) << endl ;
-	
+	//cout << votar(cant_categorias, labels, indices, distancias) << endl ;
+}
+
+void prueba8(){
+	unsigned int m = 5;
+	unsigned int n = 3;
+	matrizReal A(m,vectorReal(n,0));
+	int a= 0;
+	for(unsigned int i =0;i<m;i++){
+		for(unsigned int j =0;j<n;j++){
+			A[i][j] = a++;
+		}
+	}
+	imprimir(A);
+	vectorReal media = centrarRespectoALaMedia(A);
+	cout << endl;
+	imprimir(A);
+	cout << endl;
+	imprimir(media);
 }
 
 int main(int argc, char** argv){
@@ -179,5 +196,8 @@ int main(int argc, char** argv){
 	cout << endl << "prueba 7 Inicio" << endl;
 	prueba7();
 	cout << endl << "prueba 7 OK" << endl;
+	cout << endl << "prueba 8 Inicio" << endl;
+	prueba8();
+	cout << endl << "prueba 8 OK" << endl;
 	return 0;
 }

@@ -19,8 +19,6 @@ void normalizar(vectorReal &v){
 	}
 }
 
-
-
 vectorReal resta(vectorReal &x, vectorReal &y) {
 	//assert(x.size()==y.size());
 	vectorReal tmp(x.size(),0.0);
@@ -42,4 +40,22 @@ double productoInterno(vectorReal &u, vectorReal &v) {
 	//assert(u.size()==v.size());
 	unsigned int k1=0,k2=u.size();
 	return productoInterno(u,v,k1,k2);
+}
+
+vectorReal centrarRespectoALaMedia(matrizReal &A){
+	//A es de m*n
+	unsigned int m = A.size();
+	unsigned int n = A[0].size();
+	vectorReal media(n,0);
+	for(unsigned int i = 0; i < m;i++){
+		for(unsigned int j = 0; j < n;j++){
+			media[j]+=A[i][j]/m;
+		}
+	}
+	for(unsigned int i = 0; i < m;i++){
+		for(unsigned int j = 0; j < n;j++){
+			A[i][j] = A[i][j] - media[j];
+		}
+	}
+	return media;	
 }
