@@ -69,7 +69,7 @@ matrizReal PCA::calcularX(matrizReal &imagenes, vectorReal &media) {
   matrizReal X = matrizReal(n,vectorReal(m,0));
   for(int i=0;i<n;i++){
     for(int j=0;j<m;j++){
-      X[i][j] = (imagenes[i][j] - media[i]) / sqrt(m-1);
+      X[i][j] = (imagenes[i][j] - media[j]) / sqrt(m-1);
     }
   }
   return X;
