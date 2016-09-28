@@ -10,7 +10,8 @@
 #include <iomanip>
 #include "src/knn.h"
 #include "src/knn.cpp"
-
+#include "src/plsda.h"
+#include "src/plsda.cpp"
 
 using namespace std;
 
@@ -64,7 +65,6 @@ void prueba3(){
 	assert(abs(norma2(u) - 4) <=epsilon);
 }
 
-
 void prueba4(){
 	unsigned int n = 3;
 	matrizReal A(n,vectorReal(n,0.0));
@@ -112,7 +112,6 @@ void prueba5(){
 	assert(abs(lambda - 3) <= 1.0e-5);
 //	imprimir(v);
 }
-
 
 void prueba6(){
 	unsigned int cant_muestras = 200;
@@ -166,12 +165,46 @@ void prueba8(){
 			A[i][j] = a++;
 		}
 	}
-	imprimir(A);
+	//imprimir(A);
 	vectorReal media = centrarRespectoALaMedia(A);
-	cout << endl;
+/*	cout << endl;
 	imprimir(A);
 	cout << endl;
-	imprimir(media);
+	imprimir(media);*/
+}
+
+void prueba9(){
+	unsigned int m = 2;
+	unsigned int n = 4;
+	matrizReal A(m,vectorReal(n,0));
+	int k = 0 ;
+	for(unsigned int i = 0;i< m;i++){
+		for(unsigned int j = 0;j< n;j++){
+			A[i][j]= k++;
+		}
+	}
+	matrizReal At = transponer(A);
+	matrizReal AxAt = A_por_Bt(A,A);
+	matrizReal AtxA = A_por_Bt(At,At);
+/*	imprimir(A);
+	cout << endl;
+	imprimir(At);
+	cout << endl;
+	imprimir(AxAt);
+	cout << endl;
+	imprimir(AtxA);*/
+	
+	vectorReal v(3,0),u(3,0);
+	v[0] = 1;
+	v[1] = 2;
+	v[2] = 3;
+	u[0] = 4;
+	u[1] = 5;
+	u[2] = 6;
+	matrizReal B = v_por_ut(v,u);
+	imprimir(B);
+	restarA(B,B);
+	imprimir(B);
 }
 
 int main(int argc, char** argv){
@@ -199,5 +232,8 @@ int main(int argc, char** argv){
 	cout << endl << "prueba 8 Inicio" << endl;
 	prueba8();
 	cout << endl << "prueba 8 OK" << endl;
+	cout << endl << "prueba 9 Inicio" << endl;
+	prueba9();
+	cout << endl << "prueba 9 OK" << endl;
 	return 0;
 }

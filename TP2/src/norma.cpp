@@ -59,3 +59,41 @@ vectorReal centrarRespectoALaMedia(matrizReal &A){
 	}
 	return media;	
 }
+
+vectorReal A_por_v(matrizReal& A, vectorReal& v) {
+	int n = A.size();
+	int m = A[0].size();
+	//assert(m == v.size());
+	vectorReal resultado(n, 0.0);
+	for (int i = 0; i < n; i++) {
+		double suma = 0.0;
+		for (int j = 0; j < m; j++) {
+			suma += A[i][j] * v[j];
+		}
+		//resultado[i] = (suma < cotaCero ? 0.0 : suma);
+		resultado[i] = suma;
+	}
+	return resultado;
+}
+
+matrizReal v_por_ut(vectorReal &v,vectorReal &u){
+	unsigned int n = v.size();
+	assert(n==u.size());
+	matrizReal vXut(n,vectorReal(n,0));
+	for(unsigned int i = 0; i < n;i++){
+		for(unsigned int j = 0; j < n;j++){
+			vXut[i][j] = v[i]*u[j];
+		}
+	}
+	return vXut;
+}
+
+void restarA(matrizReal &A,matrizReal &B){
+	unsigned int mA=A.size(),nA=A[0].size(),mB=B.size(),nB=B[0].size();
+	assert(mA==mB && nA==nB);
+	for(unsigned int i = 0; i < mA;i++){
+		for(unsigned int j = 0; j < nA;j++){
+			A[i][j] -= B[i][j];
+		}
+	}
+}

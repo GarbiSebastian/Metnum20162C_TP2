@@ -5,23 +5,6 @@
 #include <iostream>
 
 
-vectorReal A_por_v(matrizReal& A, vectorReal& v) {
-	int n = A.size();
-	int m = A[0].size();
-	//assert(m == v.size());
-	vectorReal resultado(n, 0.0);
-	for (int i = 0; i < n; i++) {
-		double suma = 0.0;
-		for (int j = 0; j < m; j++) {
-			suma += A[i][j] * v[j];
-		}
-		//resultado[i] = (suma < cotaCero ? 0.0 : suma);
-		resultado[i] = suma;
-	}
-	return resultado;
-}
-
-
 double metodoPotencia(matrizReal &B, vectorReal &v, int niter, double epsilon) {
 	//MetodoPotencia(B,x 0 ,niter)
 	//v ← x0

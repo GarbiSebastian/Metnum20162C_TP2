@@ -7,6 +7,7 @@
 #include <sstream>
 #include <math.h>
 #include "knn.h"
+#include "plsda.h"
 
 using namespace std;
 extern const string trainDB = "train.csv";
@@ -147,16 +148,10 @@ int main(int argc, char** argv){
 	string path;
 	int k_vecinos, alfa_pca, gamma_plsda, K_folds;
 	inicializar(metodo,archivoEntrada,archivoSalida,niter, cantPixeles, cantMuestras, cantTests, path,k_vecinos, alfa_pca, gamma_plsda, K_folds,argc,argv);
-	//int tamTest = cantMuestras/K_folds;
-	//int tamTrain = tamTest*(K_folds-1);
 	matrizEntero X(cantMuestras,vectorEntero(cantPixeles,0));//Inicializo una matriz con la cantidad de muestras a tomar y la cantidad de pixeles por muestra
 	vectorEntero labels(cantMuestras,0);
 	armarMatrizTrain(path,X,labels,cantMuestras,cantPixeles);
 
-	//matrizReal train(tamTrain,vectorReal(cantPixeles,0));
-	//matrizReal test(tamTest,vectorReal(cantPixeles,0));
-	//vectorEntero trainLabels(tamTrain,0);
-	//vectorEntero testLabels(tamTest,0);
 	matrizReal train,test;
 	vectorEntero trainLabels,testLabels;
 	
@@ -170,18 +165,18 @@ int main(int argc, char** argv){
 		//etiquetar con PCA -> Preparar vector para matriz de confusion
 		//etiquetar con PCA -> Preparar vector para matriz de confusion
 	}
-	
-	
+
 	armarTrainTestPosta(path, X,train,test,cantMuestras,cantTests,cantPixeles);
-	
-	/*imprimir(train,archivoSalida);
-	archivoSalida << "--------------------------------------------------------------"<< endl;
-	imprimir(test,archivoSalida);
-	archivoSalida << "--------------------------------------------------------------"<< endl;
-	imprimir(labels,archivoSalida);*/
+
 	ofstream archivoKaggle("kagle.out");
 	vectorEntero indices;
 	vectorReal distancias;
+	clock_t inicio = clock();
+	matrizReal transpuesta = transponer(train);
+	clock_t fin = clock();
+	cout <<endl << train.size() << "  "<<(double)(fin-inicio)<<endl;
+	
+	exit(0);
 	switch(metodo){
 		case 1://kNN
 			for(unsigned int i =0; i < test.size();i++){
@@ -190,11 +185,18 @@ int main(int argc, char** argv){
 			}
 			break;
 		case 2://PCA+kNN
+			for(unsigned int i =0; i < test.size();i++){
+				buscar(k_vecinos,train,test[i],indices,distancias);
+				archivoKaggle << votar(10,labels,indices,distancias)<<endl;
+			}
 			break;
 		case 3://PLS-DA
+			for(unsigned int i =0; i < test.size();i++){
+				buscar(k_vecinos,train,test[i],indices,distancias);
+				archivoKaggle << votar(10,labels,indices,distancias)<<endl;
+			}
 			break;
 	}
 	
-	//Escribir archivo de salida para Kaggle con las etiquetas calculadas
 	return 0;
 }
