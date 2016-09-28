@@ -1,16 +1,19 @@
 #include "plsda.h"
 #include "norma.h"
+#include "metodoPotencia.h"
+#include "imprimir.h"
 #include <assert.h>
 
 using namespace std;
 
 
-void preprocesarTrain(matrizReal &train,vectorEntero &labels, matrizReal &Y,int gamma_plsda, int cant_categorias,vectorReal &medias){
-	medias = centrarRespectoALaMedia(train);
+vectorReal preprocesarTrain(matrizReal &train,vectorEntero &labels, matrizReal &Y,int gamma_plsda, int cant_categorias){
+	vectorReal medias = centrarRespectoALaMedia(train);
 	Y = matrizReal(labels.size(),vectorReal(cant_categorias,0));
 	for(unsigned int i = 0; i< labels.size();i++){
 		Y[i][labels[i]]=1;
 	}
+	return medias;
 }
 	
 matrizReal A_por_Bt(matrizReal &A,matrizReal &B){//La armamos de esta manera para que queden productos internos entre vectores fila(por performance)
@@ -57,23 +60,42 @@ matrizReal transponer(matrizReal &A){
 	Devolver w_i para i = 1, . . . , γ*/
 
 
-vectorReal plsda(matrizReal &X,matrizReal &Y, int gamma_plsda, matrizReal &V){
+vectorReal plsda(matrizReal &X,matrizReal &Y, int gamma_plsda, matrizReal &V, int niter, double epsilon){
 	vectorReal autovalores(gamma_plsda,0);
-	matrizReal T,S,A,Mi;
-	vectorReal ti,wi;
+	matrizReal T,S,A,Mi,U;
+	vectorReal ti,wi,u;
+	V.clear();
+	
 	for(int i=0;i< gamma_plsda;i++){
 		T = transponer(X);// T = X'
 		S = transponer(Y);// S = Y'
 		A = A_por_Bt(T,S);// A = X'*Y = T*Y = A_por_Bt(T,S)
 		Mi = A_por_Bt(A,A);// Mi = X'*Y*Y'*X = X'*Y*(X'*Y)' = A*A' = A_por_Bt(A,A)
+		//cout << "T:" << endl;
+		//imprimir(T);
+		//cout << endl;
+		//cout << "S:" << endl;
+		//imprimir(S);
+		//cout << endl;
 		//calcular w_i como el autovector asociado al mayor autovalor de M i
+		autovalores[i] = metodoPotencia(Mi, wi,niter,epsilon);
 		//normalizar w_i
+		normalizar(wi);
+		V.push_back(wi);
+				
 		//definir t_i como X*w_i
+		ti = A_por_v(X,wi);
 		//normalizar t_i
+		normalizar(ti);
 		//actualizar X como X − t_i*t_i'*X = X - t_i*(X'*t_i)' = X - ti*(T*ti)'
-		restarA(X, v_por_ut(ti,A_por_v(T,ti)));
+		u = A_por_v(T,ti);
+		U = v_por_ut(ti,u);
+		restarA(X, U);
 		//actualizar Y como Y − t_i*t_i'*Y
-		restarA(Y, v_por_ut(ti,A_por_v(S,ti)));
+		u = A_por_v(S,ti);
+		U = v_por_ut(ti,u);
+		restarA(Y, U);
+		//restarA(Y, v_por_ut(ti,A_por_v(S,ti)));
 	}
 	return autovalores;
 }

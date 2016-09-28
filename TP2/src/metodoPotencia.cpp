@@ -2,6 +2,7 @@
 #include <cmath>
 #include "metodoPotencia.h"
 #include "norma.h"
+#include "imprimir.h"
 #include <iostream>
 
 
@@ -13,13 +14,17 @@ double metodoPotencia(matrizReal &B, vectorReal &v, int niter, double epsilon) {
 	//Fin Para
 	//λ ← v'*Bv/(v'*v)
 	//Devolver λ, v .
+	v.clear();
 	
-	assert(B.size() == v.size());
-	vectorReal tmp(v.size(),0);
-	v = randVector(v.size());
+	vectorReal tmp(B.size(),0);
+	v = randVector(B.size());
 	for (int i = 0; i < niter; i++) {
+		
 		tmp= A_por_v(B, v);
+		
 		normalizar(tmp);
+		
+		
 		assert(abs(norma2(tmp)-1) <= epsilon);
 		if (norma2(resta(v, tmp)) <= epsilon){
 			//cout << "salio con " << i << " iteraciones" << endl;

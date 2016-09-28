@@ -147,13 +147,17 @@ int main(int argc, char** argv){
 	int niter, cantPixeles, cantMuestras, cantTests;
 	string path;
 	int k_vecinos, alfa_pca, gamma_plsda, K_folds;
+	double epsilon = 0.1e-15;
+	
 	inicializar(metodo,archivoEntrada,archivoSalida,niter, cantPixeles, cantMuestras, cantTests, path,k_vecinos, alfa_pca, gamma_plsda, K_folds,argc,argv);
 	matrizEntero X(cantMuestras,vectorEntero(cantPixeles,0));//Inicializo una matriz con la cantidad de muestras a tomar y la cantidad de pixeles por muestra
 	vectorEntero labels(cantMuestras,0);
 	armarMatrizTrain(path,X,labels,cantMuestras,cantPixeles);
 
-	matrizReal train,test;
+	matrizReal train,test,Y,V;
 	vectorEntero trainLabels,testLabels;
+	vectorReal medias, autovalores;
+	
 	
 	for(int i_fold=0;i_fold<K_folds;i_fold++){
 		//para cada fold armar train,test,trainLabels,testLabels
@@ -164,7 +168,12 @@ int main(int argc, char** argv){
 		//preprocesar con PLS-DA -> Escribir los gamma autovalores en salida
 		//etiquetar con PCA -> Preparar vector para matriz de confusion
 		//etiquetar con PCA -> Preparar vector para matriz de confusion
+		//medias = preprocesarTrain(train,trainLabels, Y,gamma_plsda, 10);
+		//autovalores = plsda(train,Y,gamma_plsda,V, niter, epsilon);
+		imprimir(train);
+		//imprimir(autovalores, archivoSalida);
 	}
+	
 
 	armarTrainTestPosta(path, X,train,test,cantMuestras,cantTests,cantPixeles);
 
