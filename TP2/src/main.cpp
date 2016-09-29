@@ -20,7 +20,7 @@ void leerConfiguracionGlobal(int &niter, int &cantPixeles, int &cantMuestras, in
 		niter = 1000;
 		cantPixeles=784;
 		cantMuestras=42000;
-		cantTests=18000;
+		cantTests=28000;
 	}else{
 		archivoConfig >> niter;
 		archivoConfig >> cantPixeles;
@@ -171,6 +171,8 @@ int main(int argc, char** argv){
 		//para cada fold armar train,test,trainLabels,testLabels
 		armarFold(archivoEntrada,X,labels,train,test,trainLabels,testLabels);
 		cout << "fold " << (i_fold+1) << " de " << K_folds << endl << "train: " <<  train.size() << endl << "test: " << test.size() << endl;
+
+
 		//preprocesamiento de la matriz de entrada -> devuelve matriz de conversión 
 		//preprocesar con PCA -> Escribir los alfa autovalores en salida
 		//preprocesar con PLS-DA -> Escribir los gamma autovalores en salida
@@ -182,7 +184,7 @@ int main(int argc, char** argv){
 		//imprimir(trainLabels,archivoblah,true);
 		//exit(0);
 		autovalores = plsda(train,Y,gamma_plsda,V, niter, epsilon);
-		//imprimir(autovalores, archivoSalida,true);
+        imprimir(autovalores, archivoSalida,true);
 		exit(0);
 	}
 	armarTrainTestPosta(path, X,train,test,cantMuestras,cantTests,cantPixeles);

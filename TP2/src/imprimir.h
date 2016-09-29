@@ -42,3 +42,16 @@ template<typename T>
 void imprimir(vector< vector< T > > &m){
 	imprimir(m,cout);
 }
+
+template<typename T> 
+void matlabealo(vector<vector < T > > &m,ostream &out){
+    out << "Train = [ ";
+    for(unsigned int i=0; i< m.size();i++){
+        for(unsigned int j=0; j< m[0].size();j++){
+            out << m[i][j] << " ";
+        }
+		out << ";"<< endl;
+	}
+    out << "];"<< endl;
+    
+}
