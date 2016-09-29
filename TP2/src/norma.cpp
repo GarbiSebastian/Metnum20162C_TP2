@@ -1,15 +1,34 @@
 #include "typedefs.h"
 #include "norma.h"
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 
-double norma2(vectorReal v){
+double normaInfinito(vectorReal &v){
+    double norma= 0;
+    for(unsigned int i;i<v.size();i++){
+        norma = max(norma,abs(v[i]));
+    }
+    return norma;
+}
+
+double norma2Comun(vectorReal v){
 	double norma=0.0;
 	for(unsigned int i = 0; i < v.size();i++){
-		norma+= v[i]*v[i];
+		norma+= pow(v[i],2);
 	}
 	return sqrt(norma);
+}
+
+double norma2(vectorReal v){
+    double norma,normaI;
+    normaI=normaInfinito(v);
+    vectorReal u(v.size(),0);
+    for(unsigned int i = 0; i < v.size();i++){
+        u[i]=v[i]/normaI;
+	}
+    norma = norma2Comun(u);
+    return norma*normaI;    
 }
 
 void normalizar(vectorReal &v){
@@ -32,7 +51,6 @@ double productoInterno(vectorReal &u, vectorReal &v, unsigned int k1, unsigned i
 	for (unsigned int i = k1; i < k2; i++) {
 		sum += u[i] * v[i];
 	}
-	//return (sum < cotaCero ? 0.0 : sum);
 	return sum;
 }
 

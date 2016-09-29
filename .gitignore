@@ -32,3 +32,4 @@ main
 tp
 *.pyc
 TP2/pruebaMetodoPot
+*.*~
