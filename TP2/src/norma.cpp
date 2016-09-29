@@ -77,9 +77,9 @@ vectorReal A_por_v(matrizReal& A, vectorReal& v) {
 }
 
 matrizReal v_por_ut(vectorReal &v,vectorReal &u){
-	unsigned int n = v.size();
-	assert(n==u.size());
-	matrizReal vXut(n,vectorReal(n,0));
+	unsigned int m = v.size();
+	unsigned int n = u.size();
+	matrizReal vXut(m,vectorReal(n,0));
 	for(unsigned int i = 0; i < n;i++){
 		for(unsigned int j = 0; j < n;j++){
 			vXut[i][j] = v[i]*u[j];

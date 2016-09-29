@@ -168,22 +168,16 @@ int main(int argc, char** argv){
 		//preprocesar con PLS-DA -> Escribir los gamma autovalores en salida
 		//etiquetar con PCA -> Preparar vector para matriz de confusion
 		//etiquetar con PCA -> Preparar vector para matriz de confusion
-		//medias = preprocesarTrain(train,trainLabels, Y,gamma_plsda, 10);
-		//autovalores = plsda(train,Y,gamma_plsda,V, niter, epsilon);
-		imprimir(train);
-		//imprimir(autovalores, archivoSalida);
+		medias = preprocesarTrain(train,trainLabels, Y,gamma_plsda, 10);
+		autovalores = plsda(train,Y,gamma_plsda,V, niter, epsilon);
+		imprimir(autovalores, archivoSalida,true);
+		exit(0);
 	}
-	
-
 	armarTrainTestPosta(path, X,train,test,cantMuestras,cantTests,cantPixeles);
 
 	ofstream archivoKaggle("kagle.out");
 	vectorEntero indices;
 	vectorReal distancias;
-	clock_t inicio = clock();
-	matrizReal transpuesta = transponer(train);
-	clock_t fin = clock();
-	cout <<endl << train.size() << "  "<<(double)(fin-inicio)<<endl;
 	
 	exit(0);
 	switch(metodo){

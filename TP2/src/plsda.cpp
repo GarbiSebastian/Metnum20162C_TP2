@@ -65,29 +65,17 @@ vectorReal plsda(matrizReal &X,matrizReal &Y, int gamma_plsda, matrizReal &V, in
 	matrizReal T,S,A,Mi,U;
 	vectorReal ti,wi,u;
 	V.clear();
-	
 	for(int i=0;i< gamma_plsda;i++){
 		T = transponer(X);// T = X'
 		S = transponer(Y);// S = Y'
 		A = A_por_Bt(T,S);// A = X'*Y = T*Y = A_por_Bt(T,S)
 		Mi = A_por_Bt(A,A);// Mi = X'*Y*Y'*X = X'*Y*(X'*Y)' = A*A' = A_por_Bt(A,A)
-		//cout << "T:" << endl;
-		//imprimir(T);
-		//cout << endl;
-		//cout << "S:" << endl;
-		//imprimir(S);
-		//cout << endl;
-		//calcular w_i como el autovector asociado al mayor autovalor de M i
-		autovalores[i] = metodoPotencia(Mi, wi,niter,epsilon);
-		//normalizar w_i
-		normalizar(wi);
+		autovalores[i] = metodoPotencia(Mi, wi,niter,epsilon);//calcular wi como el autovector asociado al mayor autovalor de Mi
+		normalizar(wi);//normalizar w_i
 		V.push_back(wi);
-				
-		//definir t_i como X*w_i
-		ti = A_por_v(X,wi);
-		//normalizar t_i
-		normalizar(ti);
-		//actualizar X como X − t_i*t_i'*X = X - t_i*(X'*t_i)' = X - ti*(T*ti)'
+		ti = A_por_v(X,wi);//definir ti como X*wi
+		normalizar(ti);//normalizar ti
+		//actualizar X como X − ti*ti'*X = X - ti*(X'*ti)' = X - ti*(T*ti)'
 		u = A_por_v(T,ti);
 		U = v_por_ut(ti,u);
 		restarA(X, U);

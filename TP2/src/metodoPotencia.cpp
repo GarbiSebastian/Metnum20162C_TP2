@@ -4,37 +4,35 @@
 #include "norma.h"
 #include "imprimir.h"
 #include <iostream>
+#include <iomanip>
 
 
 double metodoPotencia(matrizReal &B, vectorReal &v, int niter, double epsilon) {
-	//MetodoPotencia(B,x 0 ,niter)
-	//v ← x0
-	//Para i = 1, . . . , niter
-	//	v ← Bv/||Bv||
-	//Fin Para
-	//λ ← v'*Bv/(v'*v)
-	//Devolver λ, v .
 	v.clear();
-	
 	vectorReal tmp(B.size(),0);
+	//MetodoPotencia(B,x 0 ,niter)
+	
+	
+	
+	//Devolver λ, v .
+	
+	//v ← x0
 	v = randVector(B.size());
+	cout << fixed << setprecision(17);
+	//Para i = 1, . . . , niter
 	for (int i = 0; i < niter; i++) {
-		
 		tmp= A_por_v(B, v);
-		
 		normalizar(tmp);
-		
-		
-		assert(abs(norma2(tmp)-1) <= epsilon);
+		//assert(abs(norma2(tmp)-1) <= 0.1e-10);
 		if (norma2(resta(v, tmp)) <= epsilon){
-			//cout << "salio con " << i << " iteraciones" << endl;
-			//break;
+			cout << "salio con " << i << " iteraciones" << endl;
+			break;
 		} //si no cambio al menos epsilon en norma 2
+		//v ← Bv/||Bv||
 		v = tmp;
 	}
-	
-	//v siempre tiene norma uno entonces norma Cuadrada de v es 1
-	assert(norma2(v)-1 <= epsilon);
+	//λ ← v'*Bv/(v'*v) //v siempre tiene norma uno entonces norma Cuadrada de v es 1
+	//assert(norma2(v)-1 <= 0.1e-10);
 	vectorReal Bv = A_por_v(B,v);
 	return productoInterno(v,Bv);//producto interno entre v y Bv
 }

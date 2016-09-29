@@ -6,13 +6,24 @@
 using namespace std;
 
 template<typename T>
-void imprimir(vector<T> &v,ostream &out){
-	out << fixed << setprecision(6);
-	out << (double)v[0];
-	for(unsigned int i = 1; i < v.size();i++){
-		out << " " << (double)v[i]; 
+void imprimir(vector<T> &v,ostream &out, bool transpuesto){
+	out << scientific ;
+	if(transpuesto){
+		for(unsigned int i = 0; i < v.size();i++){
+			out << (double)v[i] << endl; 
+		}
+	}else{
+		out << (double)v[0];
+		for(unsigned int i = 1; i < v.size();i++){
+			out << " " << (double)v[i]; 
+		}
+		out << endl;
 	}
-	out << endl;
+}
+
+template<typename T>
+void imprimir(vector<T> &v,ostream &out){
+	imprimir(v,out,false);
 }
 
 template<typename T> 
