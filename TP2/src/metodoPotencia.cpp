@@ -24,17 +24,19 @@ double metodoPotencia(matrizReal &B, vectorReal &v, int niter, double epsilon) {
 		tmp= A_por_v(B, v);
 		normalizar(tmp);
 		//assert(abs(norma2(tmp)-1) <= 0.1e-10);
-		if (norma2(resta(v, tmp)) <= epsilon){
+		/*if (norma2(resta(v, tmp)) <= epsilon){
 			cout << "salio con " << i << " iteraciones" << endl;
 			break;
-		} //si no cambio al menos epsilon en norma 2
+		}*/ //si no cambio al menos epsilon en norma 2
 		//v ← Bv/||Bv||
 		v = tmp;
 	}
 	//λ ← v'*Bv/(v'*v) //v siempre tiene norma uno entonces norma Cuadrada de v es 1
 	//assert(norma2(v)-1 <= 0.1e-10);
+	double normaCuadrada = pow(norma2(v),2);
 	vectorReal Bv = A_por_v(B,v);
-	return productoInterno(v,Bv);//producto interno entre v y Bv
+	//return productoInterno(v,Bv);//producto interno entre v y Bv
+	return productoInterno(v,Bv)/normaCuadrada;
 }
 
 

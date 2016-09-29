@@ -84,6 +84,8 @@ vectorReal plsda(matrizReal &X,matrizReal &Y, int gamma_plsda, matrizReal &V, in
 		U = v_por_ut(ti,u);
 		restarA(Y, U);
 		//restarA(Y, v_por_ut(ti,A_por_v(S,ti)));
+		T.clear();
+		S.clear();
 	}
 	return autovalores;
 }

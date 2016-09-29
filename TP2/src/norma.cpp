@@ -57,7 +57,7 @@ vectorReal centrarRespectoALaMedia(matrizReal &A){
 			A[i][j] = A[i][j] - media[j];
 		}
 	}
-	return media;	
+	return media;
 }
 
 vectorReal A_por_v(matrizReal& A, vectorReal& v) {
@@ -66,12 +66,13 @@ vectorReal A_por_v(matrizReal& A, vectorReal& v) {
 	//assert(m == v.size());
 	vectorReal resultado(n, 0.0);
 	for (int i = 0; i < n; i++) {
-		double suma = 0.0;
+		/*double suma = 0.0;
 		for (int j = 0; j < m; j++) {
 			suma += A[i][j] * v[j];
 		}
 		//resultado[i] = (suma < cotaCero ? 0.0 : suma);
-		resultado[i] = suma;
+		resultado[i] = suma;*/
+		resultado[i] = productoInterno(A[i],v);
 	}
 	return resultado;
 }

@@ -76,6 +76,10 @@ void inicializar(int &metodo,ifstream &archivoEntrada,ofstream &archivoSalida, i
 
 void armarMatrizTrain(string path,matrizEntero &X, vectorEntero &labels, int cantMuestras, int cantPixeles){
 	ifstream archivoTrain((path + trainDB).c_str());
+	if(archivoTrain.fail()){
+		cout << "No se encontró el archivo " << path+trainDB << endl;
+		exit(0);
+	}
 	string linea;
 	string pixel;
 	archivoTrain >> linea;//titulos para descartar
@@ -117,6 +121,10 @@ void armarFold(ifstream &archivoEntrada, matrizEntero &X, vectorEntero &labels, 
 void armarMatrizTest(string path,matrizReal &X,int cantTests,int cantPixeles){
 	X = matrizReal(cantTests,vectorReal(cantPixeles,0));
 	ifstream archivoTest((path + testDB).c_str());
+	if(archivoTest.fail()){
+		cout << "No se encontró el archivo " << path+testDB << endl;
+		exit(0);
+	}
 	string linea;
 	string pixel;
 	archivoTest >> linea;//titulos para descartar
@@ -169,8 +177,12 @@ int main(int argc, char** argv){
 		//etiquetar con PCA -> Preparar vector para matriz de confusion
 		//etiquetar con PCA -> Preparar vector para matriz de confusion
 		medias = preprocesarTrain(train,trainLabels, Y,gamma_plsda, 10);
+		//imprimir(Y,archivoSalida);
+		//ofstream archivoblah("blah.out");
+		//imprimir(trainLabels,archivoblah,true);
+		//exit(0);
 		autovalores = plsda(train,Y,gamma_plsda,V, niter, epsilon);
-		imprimir(autovalores, archivoSalida,true);
+		//imprimir(autovalores, archivoSalida,true);
 		exit(0);
 	}
 	armarTrainTestPosta(path, X,train,test,cantMuestras,cantTests,cantPixeles);

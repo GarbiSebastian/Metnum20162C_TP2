@@ -7,7 +7,7 @@ using namespace std;
 
 template<typename T>
 void imprimir(vector<T> &v,ostream &out, bool transpuesto){
-	out << scientific ;
+	//out << scientific ;
 	if(transpuesto){
 		for(unsigned int i = 0; i < v.size();i++){
 			out << (double)v[i] << endl; 
