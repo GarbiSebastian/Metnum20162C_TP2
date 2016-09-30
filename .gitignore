@@ -27,9 +27,12 @@
 *.exe
 *.out
 *.app
+
+#TP
 TP2/src/.deps
 main
 tp
 *.pyc
 TP2/pruebaMetodoPot
 *.*~
+TP2/data2

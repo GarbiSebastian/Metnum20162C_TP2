@@ -1,0 +1,1 @@
+[train,labels,fold] = cargar("../../data2/tr.csv","../../data2/test1.in");
