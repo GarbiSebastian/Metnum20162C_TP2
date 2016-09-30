@@ -35,7 +35,20 @@ matrizReal producto(matrizReal &A, matrizReal &B) {
     }
   }
   return C;
-} 
+}
+
+matrizReal productoEscalar(matrizReal &A, double B) {
+  int n = A.size();
+  int m = A[0].size();
+
+  matrizReal C = matrizReal(n,vectorReal(m,0));
+  for(int i=0;i<n;i++){
+    for(int j=0;j<m1;j++){
+      C[i][j]=A[i][j]*B;
+    }
+  }
+  return C;
+}
 
 matrizReal trasponer(matrizReal &A) {
   int n = A.size();
@@ -83,8 +96,52 @@ vectorReal PCA::transformar(vectorReal &imagen) {
   return res;
 }
 
-void PCA::calcularAutovectores(matrizReal &M) {
-  //TODO: COMPLETAR ESTO!
-  //calcular los alfa autovectores y autovalores y guardarlos como variables de instancia.
+matrizReal PCA::deflacion(vectorReal &v1, matrizReal &A){
+  vectorReal e1 = vectorReal(0,v1.size());
+  e1[0] = 1;
+  vectorReal w = (v1-e1)/norma2(v1-e1);
+  matrizReal H = resta(I,productoEscalar(producto(w,trasponer(w)), 2));
+  matrizReal HAH = producto(producto(H,A),H);
+  return subMatriz(A,1,1); 
+}
+
+matrizReal PCA::subMatriz(matrizReal &A, int k, int l){
+  int n = A.size()-k;
+  int m = A[0].size()-l;
+
+  matrizReal X = matrizReal(n,vectorReal(m,0));
+  for(int i=0;i<n;i++){
+    for(int j=0;j<m;j++){
+      X[i][j] = A[k+i][l+j];
+    }
+  }
+
+}
+/*
+matrizReal PCA::deflacion(double lambda1, vectorReal &v1, matrizReal &A){
+  A = A - lambda1 * producto(v1, trasponer(v1));
+}
+*/
+
+void PCA::calcularAutovectores(matrizReal &M, int cantAutovectores, vector<vectorReal> &vs, vectorReal &lambdas) {
+  matrizReal A = M;
+  for (int i = 0; i < cantAutovectores; ++i)
+  {
+    vectorReal v = r(n, 0.0);
+    lambdas.push_back(metodoPotencia(&M, &v, 10, 0.15));
+    vs.push_back(v);
+    A = deflacion(v, A);
+  }
+
+  vector<vectorReal> PCA::TCPCA(vectorReal &X, vector<vectorReal> &autovectores){
+    int n = autovectores.size();
+    std::vector<vectorReal> Y = vectorReal(0, X.size());
+    for (int i = 0; i < n; ++i)
+    {
+      Y.push_back(producto(trasponer(autovectores[i]), X));
+    }
+    return Y;
+  }
+
 }
 
