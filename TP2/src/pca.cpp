@@ -100,13 +100,14 @@ matrizReal trasponer(matrizReal &A) {
 }
 
 
-PCA::PCA(matrizReal &imagenes, int alfa, int vecinos) {
+PCA::PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos) {
   vectorReal media = calcularMedia(imagenes);
   matrizReal X = calcularX(imagenes, media);
   matrizReal X_t = trasponer(X);
   matrizReal M = producto(X, X_t);
   this -> alfa = alfa;
   this -> vecinos = vecinos;
+  this -> labels = labels;
   calcularAutovectores(M);
   //aplico transformacion caracteristica a cada una de las imagenes de base
   for (int j=0; j<imagenes.size(); j++){
@@ -177,7 +178,6 @@ int PCA::clasificar(vectorReal &X){
   vectorReal xprima = tcpca(X);
   vectorEntero indices;
   vectorReal distancias;
-  vectorEntero labels;
   buscar(vecinos, imagenesTransformadas, xprima, indices, distancias);
   int ret = votar(10, labels, indices, distancias);
   return ret;
