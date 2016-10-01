@@ -9,6 +9,14 @@ using namespace std;
 
 vectorReal preprocesarTrain(matrizReal &train,vectorEntero &labels, matrizReal &Y,int gamma_plsda, int cant_categorias){
 	vectorReal medias = centrarRespectoALaMedia(train);
+	unsigned int m= train.size();
+	unsigned int n= train[0].size();
+	double raiz = sqrt(m-1);
+	for(unsigned int i = 0; i < m;i++){
+		for(unsigned int j = 0; j < n;j++){
+			train[i][j] = train[i][j]/raiz;
+		}
+	}
 	Y = matrizReal(labels.size(),vectorReal(cant_categorias,0));
 	for(unsigned int i = 0; i< labels.size();i++){
 		Y[i][labels[i]]=1;
@@ -34,13 +42,13 @@ matrizReal A_por_Bt(matrizReal &A,matrizReal &B){//La armamos de esta manera par
 }
 
 matrizReal transponer(matrizReal &A){
-	//A en Rm*n B en Ro*p
+	//A en Rm*n
 	unsigned int m = A.size();
 	unsigned int n = A[0].size();
 	matrizReal At(n,vectorReal(m,0));
 	for(unsigned int i=0; i < m ; i++){
 		for(unsigned int j=0; j < n ; j++){
-			At[j][i]=A[i][j];
+			At[j][i] = A[i][j];
 		}
 	}
 	return At;
@@ -84,8 +92,8 @@ vectorReal plsda(matrizReal &X,matrizReal &Y, int gamma_plsda, matrizReal &V, in
 		U = v_por_ut(ti,u);
 		restarA(Y, U);
 		//restarA(Y, v_por_ut(ti,A_por_v(S,ti)));
-		T.clear();
-		S.clear();
+		//T.clear();
+		//S.clear();
 	}
 	return autovalores;
 }

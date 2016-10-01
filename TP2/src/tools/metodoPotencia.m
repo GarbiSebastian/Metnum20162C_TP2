@@ -1,5 +1,5 @@
-function [v,lambda] = metodoPotencia(B,niter)
-v = rand(size(B,1),1);
+function [lambda,v] = metodoPotencia(B,niter)
+v = rand(size(B,2),1);
 for i=1:niter
   Bv = B*v;
   v = Bv/norm(Bv);
