@@ -108,7 +108,7 @@ PCA::PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos) {
   this -> alfa = alfa;
   this -> vecinos = vecinos;
   this -> labels = labels;
-  calcularAutovectores(M);
+  //calcularAutovectores(M);
   //aplico transformacion caracteristica a cada una de las imagenes de base
   for (int j=0; j<imagenes.size(); j++){
     imagenesTransformadas.push_back(tcpca(imagenes[j]));
@@ -142,7 +142,7 @@ matrizReal PCA::deflacion(vectorReal &v1, matrizReal &A){
   vectorReal w = (v1-e1)/norma2(v1-e1);
   matrizReal H = resta(I,productoEscalar(producto(w,trasponer(w)), 2));
   matrizReal HAH = producto(producto(H,A),H);
-  return subMatriz(HAH,1,1); 
+  return subMatriz(HAH,1,1);
 }
 */
 
@@ -151,18 +151,18 @@ matrizReal deflacion(double lambda, vectorReal &v, matrizReal &A){
   A = resta(A, productoEscalar(B, lambda));
 }
 
-
-void PCA::calcularAutovectores(matrizReal &M) {
-  matrizReal A = M;
-  for (int i = 0; i < alfa; ++i)
-  {
-    vectorReal v = vectorReal(A[0].size(), 0);
-    double lambda = metodoPotencia(M, v, 10, 0.15);
-    autovalores.push_back(lambda);
-    autovectores.push_back(v);
-    A = deflacion(lambda, v, A);
-  }
-}
+//
+// void PCA::calcularAutovectores(matrizReal &M) {
+//   matrizReal A = M;
+//   for (int i = 0; i < alfa; ++i)
+//   {
+//     vectorReal v = vectorReal(A[0].size(), 0);
+//     double lambda = metodoPotencia(M, v, 10, 0.15);
+//     autovalores.push_back(lambda);
+//     autovectores.push_back(v);
+//     A = deflacion(lambda, v, A);
+//   }
+// }
 
 vectorReal PCA::tcpca(vectorReal &X){
   int n = autovectores.size();

@@ -22,7 +22,7 @@ vectorReal A_por_v(matrizReal& A, vectorReal& v) {
 }
 
 
-double metodoPotencia(matrizReal &B, vectorReal &v, int niter, double epsilon) {
+double metodoPotencia(Matriz &B, vectorReal &v, int niter, double epsilon) {
 	//MetodoPotencia(B,x 0 ,niter)
 	//v ← x0
 	//Para i = 1, . . . , niter
@@ -30,12 +30,12 @@ double metodoPotencia(matrizReal &B, vectorReal &v, int niter, double epsilon) {
 	//Fin Para
 	//λ ← v'*Bv/(v'*v)
 	//Devolver λ, v .
-	
-	assert(B.size() == v.size());
+
+	//assert(B.size() == v.size());
 	vectorReal tmp(v.size(),0);
 	v = randVector(v.size());
 	for (int i = 0; i < niter; i++) {
-		tmp= A_por_v(B, v);
+		tmp= (B * v).trasponer()[0];
 		normalizar(tmp);
 		assert(abs(norma2(tmp)-1) <= epsilon);
 		if (norma2(resta(v, tmp)) <= epsilon){
@@ -44,10 +44,11 @@ double metodoPotencia(matrizReal &B, vectorReal &v, int niter, double epsilon) {
 		} //si no cambio al menos epsilon en norma 2
 		v = tmp;
 	}
-	
+
 	//v siempre tiene norma uno entonces norma Cuadrada de v es 1
 	assert(norma2(v)-1 <= epsilon);
-	vectorReal Bv = A_por_v(B,v);
+	//vectorReal Bv = A_por_v(B,v);
+	vectorReal Bv = (B * v).trasponer()[0];
 	return productoInterno(v,Bv);//producto interno entre v y Bv
 }
 

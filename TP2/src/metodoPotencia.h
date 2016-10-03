@@ -1,9 +1,11 @@
 #include "typedefs.h"
 #include <math.h>
 #include <assert.h>
+#include "matriz.h"
 
 using namespace std;
 
-double metodoPotencia(matrizReal &B, vectorReal &v, int niter, double epsilon);
-vectorReal randVector(unsigned int n);
+class Matriz;
 
+double metodoPotencia(Matriz &B, vectorReal &v, int niter, double epsilon);
+vectorReal randVector(unsigned int n);

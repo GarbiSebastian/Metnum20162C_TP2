@@ -25,7 +25,7 @@ class PCA {
 
 		//metodos privados auxiliares
 		matrizReal calcularX(matrizReal &imagenes, vectorReal &media);
-		void calcularAutovectores(matrizReal &M);
+		//void calcularAutovectores(matrizReal &M);
 
 
 };

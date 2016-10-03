@@ -7,6 +7,7 @@
 #include <sstream>
 #include <math.h>
 #include "knn.h"
+#include "matriz.h"
 
 using namespace std;
 extern const string trainDB = "train.csv";
@@ -55,7 +56,7 @@ void inicializar(int &metodo,ifstream &archivoEntrada,ofstream &archivoSalida, i
 	}
 	string entrada = argv[1];
 	string salida = argv[2];
-	
+
 	metodo = atoi(argv[3]);
 	archivoEntrada.open(entrada.c_str());
 	if(archivoEntrada.fail()){
@@ -140,61 +141,103 @@ void armarTrainTestPosta(string path,matrizEntero &X, matrizReal &train, matrizR
 }
 
 int main(int argc, char** argv){
-	int metodo;
-	ifstream archivoEntrada;
-	ofstream archivoSalida;
-	int niter, cantPixeles, cantMuestras, cantTests;
-	string path;
-	int k_vecinos, alfa_pca, gamma_plsda, K_folds;
-	inicializar(metodo,archivoEntrada,archivoSalida,niter, cantPixeles, cantMuestras, cantTests, path,k_vecinos, alfa_pca, gamma_plsda, K_folds,argc,argv);
-	//int tamTest = cantMuestras/K_folds;
-	//int tamTrain = tamTest*(K_folds-1);
-	matrizEntero X(cantMuestras,vectorEntero(cantPixeles,0));//Inicializo una matriz con la cantidad de muestras a tomar y la cantidad de pixeles por muestra
-	vectorEntero labels(cantMuestras,0);
-	armarMatrizTrain(path,X,labels,cantMuestras,cantPixeles);
+	Matriz m = Matriz(2,3);
+	m[0][0] = 1;
+	m[0][1] = 0;
+	m[0][2] = 0;
+	m[1][0] = 3;
+	m[1][1] = 4;
+	m[1][2] = 2;
 
-	//matrizReal train(tamTrain,vectorReal(cantPixeles,0));
-	//matrizReal test(tamTest,vectorReal(cantPixeles,0));
-	//vectorEntero trainLabels(tamTrain,0);
-	//vectorEntero testLabels(tamTest,0);
-	matrizReal train,test;
-	vectorEntero trainLabels,testLabels;
-	
-	for(int i_fold=0;i_fold<K_folds;i_fold++){
-		//para cada fold armar train,test,trainLabels,testLabels
-		armarFold(archivoEntrada,X,labels,train,test,trainLabels,testLabels);
-		cout << "fold " << (i_fold+1) << " de " << K_folds << endl << "train: " <<  train.size() << endl << "test: " << test.size() << endl;
-		//preprocesamiento de la matriz de entrada -> devuelve matriz de conversión 
-		//preprocesar con PCA -> Escribir los alfa autovalores en salida
-		//preprocesar con PLS-DA -> Escribir los gamma autovalores en salida
-		//etiquetar con PCA -> Preparar vector para matriz de confusion
-		//etiquetar con PCA -> Preparar vector para matriz de confusion
-	}
-	
-	
-	armarTrainTestPosta(path, X,train,test,cantMuestras,cantTests,cantPixeles);
-	
-	/*imprimir(train,archivoSalida);
-	archivoSalida << "--------------------------------------------------------------"<< endl;
-	imprimir(test,archivoSalida);
-	archivoSalida << "--------------------------------------------------------------"<< endl;
-	imprimir(labels,archivoSalida);*/
-	ofstream archivoKaggle("kagle.out");
-	vectorEntero indices;
-	vectorReal distancias;
-	switch(metodo){
-		case 1://kNN
-			for(unsigned int i =0; i < test.size();i++){
-				buscar(k_vecinos,train,test[i],indices,distancias);
-				archivoKaggle << votar(10,labels,indices,distancias)<<endl;
-			}
-			break;
-		case 2://PCA+kNN
-			break;
-		case 3://PLS-DA
-			break;
-	}
-	
+	Matriz m1 = Matriz(3,2);
+	m1[0][0] = 2;
+	m1[0][1] = 1;
+	m1[1][0] = 0;
+	m1[1][1] = 3;
+	m1[2][0] = 1;
+	m1[2][1] = 0;
+
+	cout << m <<endl;
+	cout << m1 <<endl;
+	//Matriz a = m+m1;
+	//cout << a <<endl;
+	Matriz a1 = m*m1;
+	cout <<a1<<endl;
+
+	Matriz m2 = Matriz(3,3);
+	m2[0][0] = 1;
+	m2[0][1] = 2;
+	m2[0][2] = 3;
+	m2[1][0] = 1;
+	m2[1][1] = 1;
+	m2[1][2] = 3;
+	m2[2][0] = -1;
+	m2[2][1] = 2;
+	m2[2][2] = 1;
+
+	//cout << m2.autovaloress.size();
+
+	vectorReal autovalores = m2.autovalores();
+	cout << autovalores[0] <<endl;
+	cout << autovalores[1] <<endl;
+	cout << autovalores[2] <<endl;
+
+
+	// int metodo;
+	// ifstream archivoEntrada;
+	// ofstream archivoSalida;
+	// int niter, cantPixeles, cantMuestras, cantTests;
+	// string path;
+	// int k_vecinos, alfa_pca, gamma_plsda, K_folds;
+	// inicializar(metodo,archivoEntrada,archivoSalida,niter, cantPixeles, cantMuestras, cantTests, path,k_vecinos, alfa_pca, gamma_plsda, K_folds,argc,argv);
+	// //int tamTest = cantMuestras/K_folds;
+	// //int tamTrain = tamTest*(K_folds-1);
+	// matrizEntero X(cantMuestras,vectorEntero(cantPixeles,0));//Inicializo una matriz con la cantidad de muestras a tomar y la cantidad de pixeles por muestra
+	// vectorEntero labels(cantMuestras,0);
+	// armarMatrizTrain(path,X,labels,cantMuestras,cantPixeles);
+	//
+	// //matrizReal train(tamTrain,vectorReal(cantPixeles,0));
+	// //matrizReal test(tamTest,vectorReal(cantPixeles,0));
+	// //vectorEntero trainLabels(tamTrain,0);
+	// //vectorEntero testLabels(tamTest,0);
+	// matrizReal train,test;
+	// vectorEntero trainLabels,testLabels;
+	//
+	// for(int i_fold=0;i_fold<K_folds;i_fold++){
+	// 	//para cada fold armar train,test,trainLabels,testLabels
+	// 	armarFold(archivoEntrada,X,labels,train,test,trainLabels,testLabels);
+	// 	cout << "fold " << (i_fold+1) << " de " << K_folds << endl << "train: " <<  train.size() << endl << "test: " << test.size() << endl;
+	// 	//preprocesamiento de la matriz de entrada -> devuelve matriz de conversión
+	// 	//preprocesar con PCA -> Escribir los alfa autovalores en salida
+	// 	//preprocesar con PLS-DA -> Escribir los gamma autovalores en salida
+	// 	//etiquetar con PCA -> Preparar vector para matriz de confusion
+	// 	//etiquetar con PCA -> Preparar vector para matriz de confusion
+	//}
+
+
+	// armarTrainTestPosta(path, X,train,test,cantMuestras,cantTests,cantPixeles);
+	//
+	// /*imprimir(train,archivoSalida);
+	// archivoSalida << "--------------------------------------------------------------"<< endl;
+	// imprimir(test,archivoSalida);
+	// archivoSalida << "--------------------------------------------------------------"<< endl;
+	// imprimir(labels,archivoSalida);*/
+	// ofstream archivoKaggle("kagle.out");
+	// vectorEntero indices;
+	// vectorReal distancias;
+	// switch(metodo){
+	// 	case 1://kNN
+	// 		for(unsigned int i =0; i < test.size();i++){
+	// 			buscar(k_vecinos,train,test[i],indices,distancias);
+	// 			archivoKaggle << votar(10,labels,indices,distancias)<<endl;
+	// 		}
+	// 		break;
+	// 	case 2://PCA+kNN
+	// 		break;
+	// 	case 3://PLS-DA
+	// 		break;
+	// }
+
 	//Escribir archivo de salida para Kaggle con las etiquetas calculadas
 	return 0;
 }
