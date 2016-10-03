@@ -1,1 +1,1 @@
-[train,labels,fold,X] = cargar("../../data/train.csv","../tests/test1.in");
+[train,labels,fold,trainCompleta] = cargar("../../data/train.csv","../tests/test1.in");
