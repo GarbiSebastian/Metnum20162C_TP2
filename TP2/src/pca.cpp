@@ -100,7 +100,7 @@ matrizReal trasponer(matrizReal &A) {
 }
 
 
-PCA::PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos) {
+PCA::PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos,int niter, double epsilon) {
   vectorReal media = calcularMedia(imagenes);
   matrizReal X = calcularX(imagenes, media);
   matrizReal X_t = trasponer(X);
@@ -108,7 +108,7 @@ PCA::PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos) {
   this -> alfa = alfa;
   this -> vecinos = vecinos;
   this -> labels = labels;
-  calcularAutovectores(M);
+  calcularAutovectores(M, niter, epsilon);
   //aplico transformacion caracteristica a cada una de las imagenes de base
   for (int j=0; j<imagenes.size(); j++){
     imagenesTransformadas.push_back(tcpca(imagenes[j]));
@@ -152,12 +152,12 @@ matrizReal deflacion(double lambda, vectorReal &v, matrizReal &A){
 }
 
 
-void PCA::calcularAutovectores(matrizReal &M) {
+void PCA::calcularAutovectores(matrizReal &M, int niter, double epsilon) {
   matrizReal A = M;
   for (int i = 0; i < alfa; ++i)
   {
     vectorReal v = vectorReal(A[0].size(), 0);
-    double lambda = metodoPotencia(M, v, 10, 0.15);
+    double lambda = metodoPotencia(M, v, niter, epsilon);
     autovalores.push_back(lambda);
     autovectores.push_back(v);
     A = deflacion(lambda, v, A);

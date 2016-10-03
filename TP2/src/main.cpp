@@ -8,6 +8,7 @@
 #include <math.h>
 #include "knn.h"
 #include "plsda.h"
+#include "pca.h"
 
 using namespace std;
 extern const string trainDB = "train.csv";
@@ -195,20 +196,24 @@ int main(int argc, char** argv){
 	vectorReal medias, autovalores;
 	
 	
+	/*
 	for(int i_fold=0;i_fold<K_folds;i_fold++){
+		Clasificar todos los que vienen en test, habiendo entrenado con los que vienen en train, y comparar con el label correspondiente
 		//para cada fold armar train,test,trainLabels,testLabels
 		armarFold(archivoEntrada,X,labels,train,test,trainLabels,testLabels);
 		cout << "fold " << (i_fold+1) << " de " << K_folds << endl << "train: " <<  train.size() << endl << "test: " << test.size() << endl;
-		medias = preprocesarTrain(train);//sirve para PCA Y PLSDA
-		preprocesarTest(test,medias);
 		
 		//preprocesar con PCA -> Escribir los alfa autovalores en salida
-		//autovalores = pca(train,alfa_pca,V,niter,epsilon);
+		//pca(train,alfa_pca,V,niter,epsilon);
+		//autovalores = PCA.autovalores();
+		//V = PCA.autovectores();
 		//imprimir(autovalores, archivoSalida,true);
 		//etiquetar con PCA -> Preparar vector para matriz de confusion
 		//.... aca hay que etiquetar
 		
 		//preprocesar con PLS-DA -> Escribir los gamma autovalores en salida
+		medias = preprocesarTrain(train);//sirve para PCA Y PLSDA
+		preprocesarTest(test,medias);
 		armarY(trainLabels, Y, 10);
 		autovalores = plsda(train,Y,gamma_plsda,V, niter, epsilon);
         imprimir(autovalores, archivoSalida,true);
@@ -216,37 +221,48 @@ int main(int argc, char** argv){
 		//.... aca hay que etiquetar
 	}
 	
+	
 	armarTrainTestPosta(path, X,train,test,cantMuestras,cantTests,cantPixeles);
-	medias = preprocesarTrain(train);
-	preprocesarTest(test,medias);
 	
 	exit(0);
+	*/
 	vectorEntero indices;
 	vectorReal distancias;
 	switch(metodo){
 		case 1://kNN
-			archivoKaggle.open("kaggleKnn.out");
-			for(unsigned int i =0; i < test.size();i++){
-				buscar(k_vecinos,train,test[i],indices,distancias);
-				archivoKaggle << votar(10,labels,indices,distancias)<<endl;
+			{
+				archivoKaggle.open("kaggleKnn.out");
+				for(unsigned int i =0; i < test.size();i++){
+					buscar(k_vecinos,train,test[i],indices,distancias);
+					archivoKaggle << votar(10,labels,indices,distancias)<<endl;
+				}
 			}
 			break;
 		case 2://PCA+kNN
-			archivoKaggle.open("kagglePCA.out");
-			for(unsigned int i =0; i < test.size();i++){
-				buscar(k_vecinos,train,test[i],indices,distancias);
-				archivoKaggle << votar(10,labels,indices,distancias)<<endl;
+			{
+				cout << "llegué" << endl;
+				archivoKaggle.open("kagglePCA.out");
+				PCA metodoPCA = PCA(train, labels, alfa_pca, k_vecinos, niter, epsilon);
+				//	PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos, niter, epsilon);
+				for(unsigned int i =0; i < test.size();i++){
+					//instanciar PCA con cosas
+					archivoKaggle << metodoPCA.clasificar(test[i]);
+				}
 			}
 			break;
 		case 3://PLS-DA
-			archivoKaggle.open("kaglePLSDA.out");
-			armarY(labels, Y, 10);
-			autovalores = plsda(train,Y,gamma_plsda,V, niter, epsilon);
-			//armar la matriz convertida en train
-			//convertir test de la misma manera que train
-			for(unsigned int i =0; i < test.size();i++){
-				buscar(k_vecinos,train,test[i],indices,distancias);
-				archivoKaggle << votar(10,labels,indices,distancias)<<endl;
+			{
+				medias = preprocesarTrain(train);
+				preprocesarTest(test,medias);
+				archivoKaggle.open("kaglePLSDA.out");
+				armarY(labels, Y, 10);
+				autovalores = plsda(train,Y,gamma_plsda,V, niter, epsilon);
+				//armar la matriz convertida en train
+				//convertir test de la misma manera que train
+				for(unsigned int i =0; i < test.size();i++){
+					buscar(k_vecinos,train,test[i],indices,distancias);
+					archivoKaggle << votar(10,labels,indices,distancias)<<endl;
+				}
 			}
 			break;
 	}

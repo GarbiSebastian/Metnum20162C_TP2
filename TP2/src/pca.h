@@ -11,7 +11,7 @@ using namespace std;
 class PCA {
 
 	public:
-		PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos);
+		PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos, int niter, double epsilon);
 		vectorReal tcpca(vectorReal &v);
 		int clasificar(vectorReal &v);
 
@@ -25,7 +25,7 @@ class PCA {
 
 		//metodos privados auxiliares
 		matrizReal calcularX(matrizReal &imagenes, vectorReal &media);
-		void calcularAutovectores(matrizReal &M);
+		void calcularAutovectores(matrizReal &M, int niter, double epsilon);
 
 
 };
