@@ -7,7 +7,7 @@ using namespace std;
 
 template<typename T>
 void imprimir(vector<T> &v,ostream &out, bool transpuesto){
-	//out << scientific ;
+	out << scientific ;
 	if(transpuesto){
 		for(unsigned int i = 0; i < v.size();i++){
 			out << (double)v[i] << endl; 
@@ -43,7 +43,7 @@ void imprimir(vector< vector< T > > &m){
 	imprimir(m,cout);
 }
 
-template<typename T> 
+/*template<typename T> 
 void matlabealo(vector<vector < T > > &m,ostream &out){
     out << "Train = [ ";
     for(unsigned int i=0; i< m.size();i++){
@@ -55,3 +55,4 @@ void matlabealo(vector<vector < T > > &m,ostream &out){
     out << "];"<< endl;
     
 }
+**/

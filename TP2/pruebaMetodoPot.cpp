@@ -207,8 +207,45 @@ void prueba9(){
 	imprimir(B);
 }
 
+void prueba10(){
+	matrizReal A(3,vectorReal(3,0));
+	A[0][0] = 1;
+	A[1][1] = 3;
+	A[2][2] = 2;
+	vectorReal v;
+	double lambda = metodoPotencia(A,v,1000,1.0e-10);
+	imprimir(v);
+	cout << endl << "lambda "<<lambda<< endl;
+	A[0][0]=1;
+	A[0][1]=2;
+	A[0][2]=3;
+	A[1][0]=4;
+	A[1][1]=5;
+	A[1][2]=6;
+	A[2][0]=7;
+	A[2][1]=8;
+	A[2][2]=9;
+	lambda = metodoPotencia(A,v,1000,1.0e-10);
+	imprimir(v);
+	cout << endl << "lambda "<<lambda<< endl;
+	
+	v = vectorReal(5,0);
+	v[0] = 1;
+	v[1] = 2;
+	v[2] = 3;
+	v[3] = 4;
+	v[4] = 5;
+	vectorReal u(3,0);
+	u[0]=6;
+	u[1]=7;
+	u[2]=8;
+	A = v_por_ut(v,u);
+	imprimir(A);
+}
+
 int main(int argc, char** argv){
-	cout << endl << "prueba 1 Inicio" << endl;
+	cout << scientific << setprecision(5);
+	/*cout << endl << "prueba 1 Inicio" << endl;
 	prueba1();
 	cout << endl << "prueba 1 OK" << endl;
 	cout << endl << "prueba 2 Inicio" << endl;
@@ -235,5 +272,9 @@ int main(int argc, char** argv){
 	cout << endl << "prueba 9 Inicio" << endl;
 	prueba9();
 	cout << endl << "prueba 9 OK" << endl;
+	*/
+	cout << endl << "prueba 10 Inicio" << endl;
+	prueba10();
+	cout << endl << "prueba 10 OK" << endl;
 	return 0;
 }

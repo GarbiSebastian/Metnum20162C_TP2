@@ -2,7 +2,6 @@
 #include <cmath>
 #include "metodoPotencia.h"
 #include "norma.h"
-#include "imprimir.h"
 #include <iostream>
 #include <iomanip>
 
@@ -11,11 +10,7 @@ double metodoPotencia(matrizReal &B, vectorReal &v, int niter, double epsilon) {
 	v.clear();
 	vectorReal tmp(B.size(),0);
 	//MetodoPotencia(B,x 0 ,niter)
-	
-	
-	
-	//Devolver λ, v .
-	
+
 	//v ← x0
 	v = randVector(B.size());
 	cout << fixed << setprecision(17);
@@ -32,10 +27,12 @@ double metodoPotencia(matrizReal &B, vectorReal &v, int niter, double epsilon) {
 		v = tmp;
 	}
 	//λ ← v'*Bv/(v'*v) //v siempre tiene norma uno entonces norma Cuadrada de v es 1
+	
 	//assert(norma2(v)-1 <= 0.1e-10);
 	double normaCuadrada = pow(norma2(v),2);
 	vectorReal Bv = A_por_v(B,v);
 	//return productoInterno(v,Bv);//producto interno entre v y Bv
+	//Devolver λ, v .
 	return productoInterno(v,Bv)/normaCuadrada;
 }
 

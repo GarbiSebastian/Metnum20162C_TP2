@@ -1,27 +1,23 @@
 #include "plsda.h"
 #include "norma.h"
 #include "metodoPotencia.h"
-#include "imprimir.h"
 #include <assert.h>
 
 using namespace std;
 
-
-vectorReal preprocesarTrain(matrizReal &train,vectorEntero &labels, matrizReal &Y,int gamma_plsda, int cant_categorias){
-	vectorReal medias = centrarRespectoALaMedia(train);
-	unsigned int m= train.size();
-	unsigned int n= train[0].size();
-	double raiz = sqrt(m-1);
-	for(unsigned int i = 0; i < m;i++){
-		for(unsigned int j = 0; j < n;j++){
-			train[i][j] = train[i][j]/raiz;
-		}
-	}
-	Y = matrizReal(labels.size(),vectorReal(cant_categorias,0));
-	for(unsigned int i = 0; i< labels.size();i++){
+void armarY(vectorEntero &labels, matrizReal &Y, int cant_categorias){
+	unsigned int n=labels.size();
+	double raiz = sqrt(n-1);
+	Y = matrizReal(n,vectorReal(cant_categorias,-1));
+	for(unsigned int i = 0; i< n;i++){
 		Y[i][labels[i]]=1;
 	}
-	return medias;
+	centrarRespectoALaMedia(Y);
+	for(unsigned int i = 0; i < n;i++){
+		for(unsigned int j = 0; j < cant_categorias;j++){
+			Y[i][j] = Y[i][j]/raiz;
+		}
+	}
 }
 	
 matrizReal A_por_Bt(matrizReal &A,matrizReal &B){//La armamos de esta manera para que queden productos internos entre vectores fila(por performance)
@@ -54,20 +50,6 @@ matrizReal transponer(matrizReal &A){
 	return At;
 }
 
-/*	PLS(X ,Y ,γ)
-	Para i = 1, . . . , gamma_plda
-		definir M i como X'*Y*Y'*X  //////////// (Y'*X)'*Y'*X
-		calcular w_i como el autovector asociado al mayor autovalor de M i
-		normalizar w_i
-		definir t_i como X*w_i
-		normalizar t_i
-		///////// t_i*t_i'
-		actualizar X como X − t_i*t_i'*X
-		actualizar Y como Y − t_i*t_i'*Y
-	Fin Para
-	Devolver w_i para i = 1, . . . , γ*/
-
-
 vectorReal plsda(matrizReal &X,matrizReal &Y, int gamma_plsda, matrizReal &V, int niter, double epsilon){
 	vectorReal autovalores(gamma_plsda,0);
 	matrizReal T,S,A,Mi,U;
@@ -92,8 +74,8 @@ vectorReal plsda(matrizReal &X,matrizReal &Y, int gamma_plsda, matrizReal &V, in
 		U = v_por_ut(ti,u);
 		restarA(Y, U);
 		//restarA(Y, v_por_ut(ti,A_por_v(S,ti)));
-		//T.clear();
-		//S.clear();
+		T.clear();
+		S.clear();
 	}
 	return autovalores;
 }

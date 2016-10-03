@@ -80,8 +80,8 @@ vectorReal centrarRespectoALaMedia(matrizReal &A){
 
 vectorReal A_por_v(matrizReal& A, vectorReal& v) {
 	int n = A.size();
-	int m = A[0].size();
-	//assert(m == v.size());
+//	int m = A[0].size();
+//	assert(m == v.size());
 	vectorReal resultado(n, 0.0);
 	for (int i = 0; i < n; i++) {
 		/*double suma = 0.0;
@@ -99,7 +99,7 @@ matrizReal v_por_ut(vectorReal &v,vectorReal &u){
 	unsigned int m = v.size();
 	unsigned int n = u.size();
 	matrizReal vXut(m,vectorReal(n,0));
-	for(unsigned int i = 0; i < n;i++){
+	for(unsigned int i = 0; i < m;i++){
 		for(unsigned int j = 0; j < n;j++){
 			vXut[i][j] = v[i]*u[j];
 		}
