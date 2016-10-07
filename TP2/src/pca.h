@@ -11,6 +11,7 @@ using namespace std;
 class PCA {
 
 	public:
+		PCA();
 		PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos, int niter, double epsilon);
 		vectorReal tcpca(vectorReal &v);
 		int clasificar(vectorReal &v);

@@ -1,4 +1,6 @@
 #include "pca.h"
+#include <iostream>
+
 
 using namespace std;
 
@@ -39,7 +41,7 @@ vectorReal calcularMedia(matrizReal &M) {
   }
   return medias;
 }
-
+/*
 matrizReal producto(matrizReal &A, matrizReal &B) {
   int n = A.size();
   int m = A[0].size();
@@ -59,7 +61,7 @@ matrizReal producto(matrizReal &A, matrizReal &B) {
     }
   }
   return C;
-}
+}*/
 
 matrizReal producto_traspuesto(vectorReal &v1, vectorReal &v2) {
   int n1 = v1.size();
@@ -87,30 +89,58 @@ matrizReal productoEscalar(matrizReal &A, double B) {
   return C;
 }
 
-matrizReal trasponer(matrizReal &A) {
-  int n = A.size();
-  int m = A[0].size();
-  matrizReal T = matrizReal(n,vectorReal(m,0));
-  for(int i=0;i<n;i++){
-    for(int j=0;j<m;j++){
-      T[i][j] = T[j][i];
-    }
-  }
-  return T;
+matrizReal trasponer(matrizReal &A){
+	//A en Rm*n
+	unsigned int m = A.size();
+	unsigned int n = A[0].size();
+	matrizReal At(n,vectorReal(m,0));
+	for(unsigned int i=0; i < m ; i++){
+		for(unsigned int j=0; j < n ; j++){
+			At[j][i] = A[i][j];
+		}
+	}
+	return At;
 }
 
+PCA::PCA(){}
+
+matrizReal producto(matrizReal &A,matrizReal &B){//La armamos de esta manera para que queden productos internos entre vectores fila(por performance)
+	//A en Rm*n B en Ro*p
+	//Bt en Rp*o 
+	unsigned int m = A.size();
+	unsigned int n = A[0].size();
+	unsigned int o = B.size();
+	unsigned int p = B[0].size();
+	assert(n == p);
+	matrizReal AxBt(m,vectorReal(o,0));
+	for(unsigned int i=0; i < m ; i++){
+		for(unsigned int j=0; j < o ; j++){
+			AxBt[i][j] = productoInterno(A[i],B[j]);
+		}
+	}
+	return AxBt;
+}
 
 PCA::PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos,int niter, double epsilon) {
-  vectorReal media = calcularMedia(imagenes);
+  vectorReal media = centrarRespectoALaMedia(imagenes);
   matrizReal X = calcularX(imagenes, media);
   matrizReal X_t = trasponer(X);
-  matrizReal M = producto(X, X_t);
+  //cout << "X: " << X.size() << " " << X[0].size() <<endl;
+  //cout << "X_t: " << X_t.size() << " " << X_t[0].size() <<endl;
+
+  //cout << "calcule x" << endl;
+  matrizReal M = producto(X_t, X_t);
+  //cout << "pase producto" <<endl;
   this -> alfa = alfa;
   this -> vecinos = vecinos;
   this -> labels = labels;
+  cout << "empiezo con autovectores" << endl;
   calcularAutovectores(M, niter, epsilon);
+  cout << "termino con autovectores" << endl;
+
   //aplico transformacion caracteristica a cada una de las imagenes de base
   for (int j=0; j<imagenes.size(); j++){
+  	//cout << "transforme imagen " << j << endl;
     imagenesTransformadas.push_back(tcpca(imagenes[j]));
   }
 }
@@ -146,9 +176,11 @@ matrizReal PCA::deflacion(vectorReal &v1, matrizReal &A){
 }
 */
 
-matrizReal deflacion(double lambda, vectorReal &v, matrizReal &A){
-  matrizReal B = producto_traspuesto(v, v);
-  A = resta(A, productoEscalar(B, lambda));
+void deflacion(double lambda, vectorReal &v, matrizReal &A){
+	cout << "entre en producto traspuesto" << endl;
+	matrizReal B = producto_traspuesto(v, v);
+	cout << "entre en producto escalar" << endl;
+	A = resta(A, productoEscalar(B, lambda));
 }
 
 
@@ -160,13 +192,13 @@ void PCA::calcularAutovectores(matrizReal &M, int niter, double epsilon) {
     double lambda = metodoPotencia(M, v, niter, epsilon);
     autovalores.push_back(lambda);
     autovectores.push_back(v);
-    A = deflacion(lambda, v, A);
+    deflacion(lambda, v, A);
   }
 }
 
 vectorReal PCA::tcpca(vectorReal &X){
   int n = autovectores.size();
-  vectorReal Y = vectorReal(X.size(), 0);
+  vectorReal Y;
   for (int i = 0; i < n; ++i)
   {
     Y.push_back(productoInterno(autovectores[i], X));
