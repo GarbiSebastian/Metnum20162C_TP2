@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <math.h>
 #include <vector>
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -18,7 +20,6 @@ class PCA {
 		vectorReal autovalores;
 
 	private:
-		//fstream data;
 		vector<vectorReal> autovectores;
 		matrizReal imagenesTransformadas;
 		int alfa;

@@ -1,8 +1,5 @@
 #include "pca.h"
-#include <iostream>
 #include <iomanip>
-
-
 
 using namespace std;
 
@@ -44,27 +41,6 @@ vectorReal calcularMedia(matrizReal &M) {
   }
   return medias;
 }
-/*
-matrizReal producto(matrizReal &A, matrizReal &B) {
-  int n = A.size();
-  int m = A[0].size();
-
-  int n1 = B.size();
-  int m1 = B[0].size();
-
-  assert(m == n1);
-
-  matrizReal C = matrizReal(n,vectorReal(m1,0));
-  for(int i=0;i<n;i++){
-    for(int j=0;j<m1;j++){
-      C[i][j]=0;
-      for(int k=0;k<m;k++){
-        C[i][j]=C[i][j]+(A[i][k] * B[k][j]);
-      }
-    }
-  }
-  return C;
-}*/
 
 matrizReal producto_traspuesto(vectorReal &v1, vectorReal &v2) {
   int n1 = v1.size();
@@ -128,24 +104,16 @@ PCA::PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos,int n
   vectorReal media = calcularMedia(imagenes);
   matrizReal X = calcularX(imagenes, media);
   matrizReal X_t = trasponer(X);
-  cout << "X, " << "Filas: " << X.size() << " Columnas: " << X[0].size() << endl;
-  //cout << "X: " << X.size() << " " << X[0].size() <<endl;
-  //cout << "X_t: " << X_t.size() << " " << X_t[0].size() <<endl
-  //cout << "calcule x" << endl;
   matrizReal M = producto(X_t, X_t);
   autovalores = vectorReal(alfa, 0);
   autovectores = matrizReal(alfa, vectorReal(M[0].size(),0));
-  //cout << "pase producto" <<endl;
   this -> alfa = alfa;
   this -> vecinos = vecinos;
   this -> labels = labels;
-  //cout << "empiezo con autovectores" << endl;
   calcularAutovectores(M, niter, epsilon);
-  //cout << "termino con autovectores" << endl;
 
   //aplico transformacion caracteristica a cada una de las imagenes de base
   for (int j=0; j<imagenes.size(); j++){
-  	//cout << "transforme imagen " << j << endl;
     imagenesTransformadas.push_back(tcpca(imagenes[j]));
   }
 }
@@ -164,68 +132,26 @@ matrizReal PCA::calcularX(matrizReal &imagenes, vectorReal &media) {
   return X;
 }
 
-/*
-vectorReal PCA::transformar(vectorReal &imagen) {
-  vectorReal res;
-  for(int i=0; i<autovectores.size(); i++){
-    res.push_back(productoInterno(autovectores[i], imagen));
-  }
-  return res;
-}
-
-matrizReal PCA::deflacion(vectorReal &v1, matrizReal &A){
-  vectorReal e1 = vectorReal(0,v1.size());
-  e1[0] = 1;
-  vectorReal w = (v1-e1)/norma2(v1-e1);
-  matrizReal H = resta(I,productoEscalar(producto(w,trasponer(w)), 2));
-  matrizReal HAH = producto(producto(H,A),H);
-  return subMatriz(HAH,1,1);
-}
-*/
-
 matrizReal deflacion(double lambda, vectorReal &v, matrizReal &A){
-	//cout << "entre en producto traspuesto" << endl;
 	matrizReal B = producto_traspuesto(v, v);
-  //double norma = norma2(v);
-  //double norma2Cuadrado = norma2 * norma2;
-	//cout << "entre en producto escalar" << endl;
 	return restaM(A, productoEscalar(B, lambda));
 }
 
 
 void PCA::calcularAutovectores(matrizReal &M, int niter, double epsilon) {
-  //data.open("/pca/data" + "_" + niter)
-  //if (!data) {
-    matrizReal A = M;
-    for (int i = 0; i < alfa; ++i)
-    {
-      cout << "Calculando autovector " << i << endl;
-      vectorReal v = vectorReal(A[0].size(), 0);
-      double lambda = metodoPotencia(A, v, niter, epsilon);
-      autovalores[i] = lambda;
-      cout << scientific ;
-      cout << "Autovalor " << i << ": " << lambda <<endl;
-
-      // for (int h=0; h<v.size(); h++) {
-      //   cout << v[h] << " ";
-      // }
-
-      //escribirData(autovalores);
-      autovectores[i] = v;
-      A = deflacion(lambda, v, A);
-    }
-  // } else {
-  //   cargarData();
-  // }
+  matrizReal A = M;
+  for (int i = 0; i < alfa; ++i)
+  {
+    //cout << "Calculando autovector " << i << endl;
+    vectorReal v = vectorReal(A[0].size(), 0);
+    double lambda = metodoPotencia(A, v, niter, epsilon);
+    autovalores[i] = lambda;
+    // cout << scientific ;
+    // cout << "Autovalor " << i << ": " << lambda <<endl;
+    autovectores[i] = v;
+    A = deflacion(lambda, v, A);
+  }
 }
-
-// void PCA::cargarData() {
-//
-// }
-//
-// void PCA::escribirData(autovalores) {
-//
-// }
 
 vectorReal PCA::tcpca(vectorReal &X){
   int n = autovectores.size();
