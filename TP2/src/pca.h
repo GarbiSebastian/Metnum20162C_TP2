@@ -15,10 +15,11 @@ class PCA {
 		PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos, int niter, double epsilon);
 		vectorReal tcpca(vectorReal &v);
 		int clasificar(vectorReal &v);
+		vectorReal autovalores;
 
 	private:
+		//fstream data;
 		vector<vectorReal> autovectores;
-		vector<double> autovalores;
 		matrizReal imagenesTransformadas;
 		int alfa;
 		int vecinos;
