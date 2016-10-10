@@ -218,6 +218,7 @@ int main(int argc, char** argv){
 	ofstream archivoPlsdaTiempos((salida+".plsda.tiempos").c_str());
 	ofstream archivoPcaResultados((salida+".pca.resultados").c_str());
 	ofstream archivoPcaTiempos((salida+".pca.tiempos").c_str());
+	clock_t inicio, fin;
 	
 	if(ejecutarFold){
 		for(int i_fold=0;i_fold<K_folds;i_fold++){
@@ -228,12 +229,16 @@ int main(int argc, char** argv){
 			armarFold(archivoEntrada,Muestras,labels,train,test,trainLabels,testLabels);
 			cout << "fold " << (i_fold+1) << " de " << K_folds << endl << "train: " <<  train.size() << endl << "test: " << test.size() << endl;
 			
+			inicio = clock();
 			PCA metodoPCA = PCA(train, trainLabels, alfa_pca, k_vecinos, niter, epsilon);
 			imprimir(metodoPCA.autovalores, archivoSalida,true);
 			for(unsigned int i =0; i < test.size();i++){
 				archivoPcaResultados << testLabels[i] << ' ' <<  metodoPCA.clasificar(test[i]) << endl;
 			}
-		
+			fin = clock();
+			archivoPcaTiempos << (fin-inicio) << endl;
+					
+			inicio = clock();
 			medias = preprocesarTrain(train);
 			preprocesarTest(test,medias);
 			X=copiar(train);//centrado en la media y dividido raiz de n-1
@@ -246,6 +251,9 @@ int main(int argc, char** argv){
 				buscar(k_vecinos,W,Z[i],indices,distancias);
 				archivoPlsdaResultados << testLabels[i] << " "<< votar(10,trainLabels,indices,distancias) << endl;
 			}
+			fin = clock();
+			archivoPlsdaTiempos << (fin-inicio) << endl;
+			
 			indices.clear();
 			distancias.clear();
 		}
