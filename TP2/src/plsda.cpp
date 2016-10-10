@@ -14,7 +14,7 @@ void armarY(vectorEntero &labels, matrizReal &Y, int cant_categorias){
 	}
 	centrarRespectoALaMedia(Y);
 	for(unsigned int i = 0; i < n;i++){
-		for(unsigned int j = 0; j < cant_categorias;j++){
+		for(int j = 0; j < cant_categorias;j++){
 			Y[i][j] = Y[i][j]/raiz;
 		}
 	}

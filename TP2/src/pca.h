@@ -5,19 +5,22 @@
 #include <assert.h>
 #include <math.h>
 #include <vector>
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 
 class PCA {
 
 	public:
+		PCA();
 		PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos, int niter, double epsilon);
 		vectorReal tcpca(vectorReal &v);
 		int clasificar(vectorReal &v);
+		vectorReal autovalores;
 
 	private:
 		vector<vectorReal> autovectores;
-		vector<double> autovalores;
 		matrizReal imagenesTransformadas;
 		int alfa;
 		int vecinos;

@@ -65,7 +65,7 @@ void inicializar(int &metodo,ifstream &archivoEntrada,ofstream &archivoSalida,of
 	}
 	string entrada = argv[1];
 	string salida = argv[2];
-	
+
 	metodo = atoi(argv[3]);
 	archivoEntrada.open(entrada.c_str());
 	if(archivoEntrada.fail()){
@@ -213,7 +213,7 @@ int main(int argc, char** argv){
 	vectorEntero labels(cantMuestras,0);
 	armarMatrizTrain(path,Muestras,labels,cantMuestras,cantPixeles);
 
-	matrizReal train,X,W,Z,test,Y,V;
+	matrizReal train,test,V,W,X,Y,Z;
 	vectorEntero trainLabels,testLabels;
 	vectorReal medias, autovalores;
 	vectorEntero indices;
@@ -222,6 +222,8 @@ int main(int argc, char** argv){
 	
 	if(ejecutarFold){
 		for(int i_fold=0;i_fold<K_folds;i_fold++){
+			indices.clear();
+			distancias.clear();
 			//Clasificar todos los que vienen en test, habiendo entrenado con los que vienen en train, y comparar con el label correspondiente
 			//para cada fold armar train,test,trainLabels,testLabels
 			armarFold(archivoEntrada,Muestras,labels,train,test,trainLabels,testLabels);
@@ -245,7 +247,7 @@ int main(int argc, char** argv){
 			Z = A_por_Bt(test,V);
 			for(unsigned int i =0; i < Z.size();i++){
 				buscar(k_vecinos,W,Z[i],indices,distancias);
-				archivoCosas << testLabels[i] << " "<< votar(10,labels,indices,distancias) << endl;
+				archivoCosas << testLabels[i] << " "<< votar(10,trainLabels,indices,distancias) << endl;
 			}
 			indices.clear();
 			distancias.clear();
@@ -254,42 +256,50 @@ int main(int argc, char** argv){
 	if(ejecutarCompleto){
 		armarTrainTestPosta(path, Muestras,train,test,cantMuestras,cantTests,cantPixeles);
 		switch(metodo){
-			case 1://kNN
-				{
-					archivoKaggle.open("kaggleKnn.out");
-					for(unsigned int i =0; i < test.size();i++){
-						buscar(k_vecinos,train,test[i],indices,distancias);
-						archivoKaggle << votar(10,labels,indices,distancias)<<endl;
-					}
+			case 1:{//kNN
+			
+				archivoKaggle.open("kaggleKnn.out");
+				archivoKaggle << "ImageId" << ',' << "Label" << endl;
+				for(unsigned int i =0; i < test.size();i++){
+					buscar(k_vecinos,train,test[i],indices,distancias);
+					archivoKaggle << i +1 << ',' <<  votar(10,labels,indices,distancias)<<endl;
 				}
 				break;
-			case 2://PCA+kNN
-				{
-					cout << "llegué" << endl;
-					archivoKaggle.open("kagglePCA.out");
-					PCA metodoPCA = PCA(train, labels, alfa_pca, k_vecinos, niter, epsilon);
-					//	PCA(matrizReal &imagenes, vectorEntero &labels, int alfa, int vecinos, niter, epsilon);
-					for(unsigned int i =0; i < test.size();i++){
-						//instanciar PCA con cosas
-						archivoKaggle << metodoPCA.clasificar(test[i]);
-					}
+			}
+		case 2://PCA+kNN
+			{
+				archivoKaggle.open("kagglePCA.out");
+				PCA metodoPCA = PCA(train, labels, alfa_pca, k_vecinos, niter, epsilon);
+				archivoKaggle << "ImageId" << ',' << "Label" << endl;
+				for(unsigned int i =0; i < test.size();i++){
+					cout << "clasificando imagen " << i << endl;
+					archivoKaggle << i +1 << ',' <<  metodoPCA.clasificar(test[i]) << endl;
 				}
 				break;
-			case 3://PLS-DA
-				{
-					medias = preprocesarTrain(train);
-					preprocesarTest(test,medias);
-					archivoKaggle.open("kaglePLSDA.out");
-					armarY(labels, Y, 10);
-					autovalores = plsda(train,Y,gamma_plsda,V, niter, epsilon);
-					//armar la matriz convertida en train
-					//convertir test de la misma manera que train
-					for(unsigned int i =0; i < test.size();i++){
-						buscar(k_vecinos,train,test[i],indices,distancias);
-						archivoKaggle << votar(10,labels,indices,distancias)<<endl;
-					}
+			}
+			case 3:{//PLS-DA
+				archivoKaggle.open("kaglePLSDA.out");
+				indices.clear();
+				distancias.clear();
+				V.clear();
+				W.clear();
+				X.clear();
+				Y.clear();
+				Z.clear();
+				medias.clear();
+				medias = preprocesarTrain(train);
+				preprocesarTest(test,medias);
+				X=copiar(train);//centrado en la media y dividido raiz de n-1
+				armarY(labels, Y, 10);
+				autovalores = plsda(X,Y,gamma_plsda,V, niter, epsilon);//¡¡¡OJO!!! ROMPE TRAIN
+				W = A_por_Bt(train,V);
+				Z = A_por_Bt(test,V);
+				for(unsigned int i =0; i < Z.size();i++){
+					buscar(k_vecinos,W,Z[i],indices,distancias);
+					archivoKaggle << votar(10,labels,indices,distancias)<<endl;
 				}
 				break;
+			}
 		}
 	}
 	return 0;

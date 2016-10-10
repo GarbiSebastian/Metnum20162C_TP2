@@ -45,19 +45,13 @@ vectorReal resta(vectorReal &x, vectorReal &y) {
 	return tmp;
 }
 
-
-double productoInterno(vectorReal &u, vectorReal &v, unsigned int k1, unsigned int k2) {
+double productoInterno(vectorReal &u, vectorReal &v) {
+	assert(u.size()==v.size());
 	double sum = 0;
-	for (unsigned int i = k1; i < k2; i++) {
+	for (unsigned int i = 0; i < u.size(); i++) {
 		sum += u[i] * v[i];
 	}
 	return sum;
-}
-
-double productoInterno(vectorReal &u, vectorReal &v) {
-	//assert(u.size()==v.size());
-	unsigned int k1=0,k2=u.size();
-	return productoInterno(u,v,k1,k2);
 }
 
 vectorReal centrarRespectoALaMedia(matrizReal &A){
