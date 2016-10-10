@@ -203,8 +203,6 @@ int main(int argc, char** argv){
 	double epsilon = 0.1e-10;
 	bool ejecutarFold,ejecutarCompleto;
 	
-	ofstream archivoCosas((salida+".cosas").c_str());
-	
 	inicializar(metodo,archivoEntrada,archivoSalida,salida,niter, cantPixeles, cantMuestras, cantTests, ejecutarFold,ejecutarCompleto, path,k_vecinos, alfa_pca, gamma_plsda, K_folds,argc,argv);
 	matrizEntero Muestras(cantMuestras,vectorEntero(cantPixeles,0));//Inicializo una matriz con la cantidad de muestras a tomar y la cantidad de pixeles por muestra
 	vectorEntero labels(cantMuestras,0);
@@ -220,6 +218,7 @@ int main(int argc, char** argv){
 	ofstream archivoPlsdaTiempos((salida+".plsda.tiempos").c_str());
 	ofstream archivoPcaResultados((salida+".pca.resultados").c_str());
 	ofstream archivoPcaTiempos((salida+".pca.tiempos").c_str());
+	clock_t inicio, fin;
 	
 	if(ejecutarFold){
 		for(int i_fold=0;i_fold<K_folds;i_fold++){
@@ -230,12 +229,16 @@ int main(int argc, char** argv){
 			armarFold(archivoEntrada,Muestras,labels,train,test,trainLabels,testLabels);
 			cout << "fold " << (i_fold+1) << " de " << K_folds << endl << "train: " <<  train.size() << endl << "test: " << test.size() << endl;
 			
-			PCA metodoPCA = PCA(train, labels, alfa_pca, k_vecinos, niter, epsilon);
+			inicio = clock();
+			PCA metodoPCA = PCA(train, trainLabels, alfa_pca, k_vecinos, niter, epsilon);
 			imprimir(metodoPCA.autovalores, archivoSalida,true);
 			for(unsigned int i =0; i < test.size();i++){
 				archivoPcaResultados << testLabels[i] << ' ' <<  metodoPCA.clasificar(test[i]) << endl;
 			}
-		
+			fin = clock();
+			archivoPcaTiempos << (fin-inicio) << endl;
+					
+			inicio = clock();
 			medias = preprocesarTrain(train);
 			preprocesarTest(test,medias);
 			X=copiar(train);//centrado en la media y dividido raiz de n-1
@@ -248,6 +251,9 @@ int main(int argc, char** argv){
 				buscar(k_vecinos,W,Z[i],indices,distancias);
 				archivoPlsdaResultados << testLabels[i] << " "<< votar(10,trainLabels,indices,distancias) << endl;
 			}
+			fin = clock();
+			archivoPlsdaTiempos << (fin-inicio) << endl;
+			
 			indices.clear();
 			distancias.clear();
 		}
@@ -256,7 +262,6 @@ int main(int argc, char** argv){
 		armarTrainTestPosta(path, Muestras,train,test,cantMuestras,cantTests,cantPixeles);
 		switch(metodo){
 			case 1:{//kNN
-			
 				archivoKaggle.open("kaggleKnn.out");
 				archivoKaggle << "ImageId" << ',' << "Label" << endl;
 				for(unsigned int i =0; i < test.size();i++){
