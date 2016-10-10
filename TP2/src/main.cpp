@@ -228,7 +228,7 @@ int main(int argc, char** argv){
 			armarFold(archivoEntrada,Muestras,labels,train,test,trainLabels,testLabels);
 			cout << "fold " << (i_fold+1) << " de " << K_folds << endl << "train: " <<  train.size() << endl << "test: " << test.size() << endl;
 			
-			PCA metodoPCA = PCA(train, labels, alfa_pca, k_vecinos, niter, epsilon);
+			PCA metodoPCA = PCA(train, trainLabels, alfa_pca, k_vecinos, niter, epsilon);
 			imprimir(metodoPCA.autovalores, archivoSalida,true);
 			for(unsigned int i =0; i < test.size();i++){
 				archivoPcaResultados << testLabels[i] << ' ' <<  metodoPCA.clasificar(test[i]) << endl;

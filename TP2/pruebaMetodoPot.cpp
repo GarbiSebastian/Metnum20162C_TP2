@@ -15,6 +15,19 @@
 
 using namespace std;
 
+
+matrizReal copiar(matrizReal &A){
+	unsigned int m= A.size();
+	unsigned int n= A[0].size();
+	matrizReal B(m,vectorReal(n,0));
+	for(unsigned int i =0;i<m;i++){
+		for(unsigned int j =0;j<n;j++){
+			B[i][j]=A[i][j];
+		}
+	}
+	return B;
+}
+
 void prueba1(){
 	unsigned int n=3;
 	matrizReal A(n,vectorReal(n,0));
@@ -225,22 +238,29 @@ void prueba10(){
 	A[2][0]=7;
 	A[2][1]=8;
 	A[2][2]=9;
-	lambda = metodoPotencia(A,v,1000,1.0e-10);
-	imprimir(v);
-	cout << endl << "lambda "<<lambda<< endl;
 	
-	v = vectorReal(5,0);
-	v[0] = 1;
-	v[1] = 2;
-	v[2] = 3;
-	v[3] = 4;
-	v[4] = 5;
-	vectorReal u(3,0);
-	u[0]=6;
-	u[1]=7;
-	u[2]=8;
-	A = v_por_ut(v,u);
+	matrizReal B =copiar(A);
+	A[0][0]=123;
+	
+	//lambda = metodoPotencia(A,v,1000,1.0e-10);
+	//imprimir(v);
+	//cout << endl << "lambda "<<lambda<< endl;
+	//v = vectorReal(5,0);
+	//v[0] = 1;
+	//v[1] = 2;
+	//v[2] = 3;
+	//v[3] = 4;
+	//v[4] = 5;
+	//vectorReal u(3,0);
+	//u[0]=6;
+	//u[1]=7;
+	//u[2]=8;
+	//A = v_por_ut(v,u);
+	//imprimir(A);
 	imprimir(A);
+	cout << endl;
+	imprimir(B);
+	
 }
 
 int main(int argc, char** argv){
