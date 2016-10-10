@@ -15,18 +15,22 @@ extern const string trainDB = "train.csv";
 extern const string testDB = "test.csv";
 extern const string config = "config.tp";
 
-void leerConfiguracionGlobal(int &niter, int &cantPixeles, int &cantMuestras, int &cantTests){
+void leerConfiguracionGlobal(int &niter, int &cantPixeles, int &cantMuestras, int &cantTests,bool &ejecutarFold, bool &ejecutarCompleto){
 	ifstream archivoConfig(config.c_str());
 	if(archivoConfig.fail()){
 		niter = 1000;
 		cantPixeles=784;
 		cantMuestras=42000;
 		cantTests=28000;
+		ejecutarFold=true;
+		ejecutarCompleto=true;
 	}else{
 		archivoConfig >> niter;
 		archivoConfig >> cantPixeles;
 		archivoConfig >> cantMuestras;
 		archivoConfig >> cantTests;
+		archivoConfig >> ejecutarFold;
+		archivoConfig >> ejecutarCompleto;
 		cout << endl
 			<< "----------------------------------------------------------------------------------------------------------------------" << endl
 			<< "|Se utilizaran los valores de prueba del archivo \"config.tp\". Elimine dicho archivo para tomar los parámetros totales"<< endl
@@ -35,7 +39,12 @@ void leerConfiguracionGlobal(int &niter, int &cantPixeles, int &cantMuestras, in
 			<< "|cantPixeles: " << cantPixeles << endl
 			<< "|cantMuestras: " << cantMuestras << endl
 			<< "|cantTests: " << cantTests << endl
+			<< "|ejecutarFold: " << (ejecutarFold?"true":"false")<<endl
+			<< "|ejecutarCompleto: " << (ejecutarCompleto?"true":"false")<<endl
 			<< "------------------------" << endl;
+			if(!ejecutarFold&&!ejecutarCompleto){
+				cout << endl << "Error en \"config.tp\" no se ejecutará nada.";
+			}
 	}
 }
 
@@ -49,13 +58,13 @@ void leerConfiguracionExperimento(ifstream &archivoEntrada,string &path, int &k_
 	getline(archivoEntrada,descarte);
 }
 
-void inicializar(int &metodo,ifstream &archivoEntrada,ofstream &archivoSalida,ofstream &archivoCosas, int &niter, int &cantPixeles, int &cantMuestras,int &cantTests, string &path, int &k_vecinos, int &alfa_pca, int &gamma_plsda, int &K_folds,int argc, char** argv){
+void inicializar(int &metodo,ifstream &archivoEntrada,ofstream &archivoSalida,string &salida, int &niter, int &cantPixeles, int &cantMuestras,int &cantTests,bool &ejecutarFold, bool &ejecutarCompleto, string &path, int &k_vecinos, int &alfa_pca, int &gamma_plsda, int &K_folds,int argc, char** argv){
 	if (argc < 4) {
 		cout << "Error de cantidad de parametros" << endl;
 		exit(0);
 	}
 	string entrada = argv[1];
-	string salida = argv[2];
+	salida = argv[2];
 
 	metodo = atoi(argv[3]);
 	archivoEntrada.open(entrada.c_str());
@@ -68,12 +77,7 @@ void inicializar(int &metodo,ifstream &archivoEntrada,ofstream &archivoSalida,of
 		cout << "Falla Archivo de salida" << endl;
 		exit(0);
 	}
-	archivoCosas.open((salida+".cosas").c_str());
-	if(archivoSalida.fail()){
-		cout << "Falla Archivo de cosas" << endl;
-		exit(0);
-	}
-	leerConfiguracionGlobal(niter, cantPixeles, cantMuestras, cantTests);
+	leerConfiguracionGlobal(niter, cantPixeles, cantMuestras, cantTests, ejecutarFold,ejecutarCompleto);
 	leerConfiguracionExperimento(archivoEntrada, path, k_vecinos, alfa_pca, gamma_plsda, K_folds);
 	//cout << "entrada: " << entrada << endl << "salida: " << salida << endl << "metodo: "<< metodo << endl;
 	//cout << "path: " << path << endl << "k_vecinos: " << k_vecinos << endl <<  "alfa_pca: " << alfa_pca << endl << "gamma_plsda: " << gamma_plsda << endl << "K_folds: " << K_folds << endl;
@@ -177,70 +181,87 @@ void preprocesarTest(matrizReal &test,vectorReal &medias){
 	}
 }
 
+matrizReal copiar(matrizReal &A){
+	unsigned int m= A.size();
+	unsigned int n= A[0].size();
+	matrizReal B(m,vectorReal(n,0));
+	for(unsigned int i =0;i<m;i++){
+		for(unsigned int j =0;j<n;j++){
+			B[i][j]=A[i][j];
+		}
+	}
+	return B;
+}
+
 int main(int argc, char** argv){
 	int metodo;
 	ifstream archivoEntrada;
-	ofstream archivoSalida,archivoCosas,archivoKaggle;
+	ofstream archivoSalida, archivoKaggle;
 	int niter, cantPixeles, cantMuestras, cantTests;
-	string path;
+	string path,salida;
 	int k_vecinos, alfa_pca, gamma_plsda, K_folds;
-	double epsilon = 0.1e-15;
-
-	inicializar(metodo,archivoEntrada,archivoSalida,archivoCosas,niter, cantPixeles, cantMuestras, cantTests, path,k_vecinos, alfa_pca, gamma_plsda, K_folds,argc,argv);
-	matrizEntero X(cantMuestras,vectorEntero(cantPixeles,0));//Inicializo una matriz con la cantidad de muestras a tomar y la cantidad de pixeles por muestra
+	double epsilon = 0.1e-10;
+	bool ejecutarFold,ejecutarCompleto;
+	
+	inicializar(metodo,archivoEntrada,archivoSalida,salida,niter, cantPixeles, cantMuestras, cantTests, ejecutarFold,ejecutarCompleto, path,k_vecinos, alfa_pca, gamma_plsda, K_folds,argc,argv);
+	matrizEntero Muestras(cantMuestras,vectorEntero(cantPixeles,0));//Inicializo una matriz con la cantidad de muestras a tomar y la cantidad de pixeles por muestra
 	vectorEntero labels(cantMuestras,0);
-	armarMatrizTrain(path,X,labels,cantMuestras,cantPixeles);
+	armarMatrizTrain(path,Muestras,labels,cantMuestras,cantPixeles);
 
-	matrizReal train,test,Y,V;
+	matrizReal train,test,V,W,X,Y,Z;
 	vectorEntero trainLabels,testLabels;
 	vectorReal medias, autovalores;
-
-
-
-	// for(int i_fold=0;i_fold<K_folds;i_fold++){
-	// 	//Clasificar todos los que vienen en test, habiendo entrenado con los que vienen en train, y comparar con el label correspondiente
-	// 	//para cada fold armar train,test,trainLabels,testLabels
-	// 	armarFold(archivoEntrada,X,labels,train,test,trainLabels,testLabels);
-	// 	cout << "fold " << (i_fold+1) << " de " << K_folds << endl << "train: " <<  train.size() << endl << "test: " << test.size() << endl;
-	//
-	// 	//preprocesar con PCA -> Escribir los alfa autovalores en salida
-	// 	//pca(train,alfa_pca,V,niter,epsilon);
-	// 	PCA metodoPCA = PCA(train, labels, alfa_pca, k_vecinos, niter, epsilon);
-	// 	vectorReal autovalores = metodoPCA.autovalores;
-	// 	//V = PCA.autovectores();
-	// 	imprimir(autovalores, archivoSalida,true);
-	// 	//etiquetar con PCA -> Preparar vector para matriz de confusion
-	// 	//.... aca hay que etiquetar
-	//
-	// 	//preprocesar con PLS-DA -> Escribir los gamma autovalores en salida
-	// 	medias = preprocesarTrain(train);//sirve para PCA Y PLSDA
-	// 	preprocesarTest(test,medias);
-	// 	armarY(trainLabels, Y, 10);
-	// 	autovalores = plsda(train,Y,gamma_plsda,V, niter, epsilon);
-  //   imprimir(autovalores, archivoSalida,true);
-	// 	//etiquetar con PCA -> Preparar vector para matriz de confusion
-	// 	//.... aca hay que etiquetar
-	//}
-
-
-
-	//exit(0);
-
-	armarTrainTestPosta(path, X,train,test,cantMuestras,cantTests,cantPixeles);
-
 	vectorEntero indices;
 	vectorReal distancias;
-	switch(metodo){
-		case 1://kNN
-			{
+	
+	ofstream archivoPlsdaResultados((salida+".plsda.resultados").c_str());
+	ofstream archivoPlsdaTiempos((salida+".plsda.tiempos").c_str());
+	ofstream archivoPcaResultados((salida+".pca.resultados").c_str());
+	ofstream archivoPcaTiempos((salida+".pca.tiempos").c_str());
+	
+	if(ejecutarFold){
+		for(int i_fold=0;i_fold<K_folds;i_fold++){
+			indices.clear();
+			distancias.clear();
+			//Clasificar todos los que vienen en test, habiendo entrenado con los que vienen en train, y comparar con el label correspondiente
+			//para cada fold armar train,test,trainLabels,testLabels
+			armarFold(archivoEntrada,Muestras,labels,train,test,trainLabels,testLabels);
+			cout << "fold " << (i_fold+1) << " de " << K_folds << endl << "train: " <<  train.size() << endl << "test: " << test.size() << endl;
+			
+			PCA metodoPCA = PCA(train, labels, alfa_pca, k_vecinos, niter, epsilon);
+			imprimir(metodoPCA.autovalores, archivoSalida,true);
+			for(unsigned int i =0; i < test.size();i++){
+				archivoPcaResultados << testLabels[i] << ' ' <<  metodoPCA.clasificar(test[i]) << endl;
+			}
+		
+			medias = preprocesarTrain(train);
+			preprocesarTest(test,medias);
+			X=copiar(train);//centrado en la media y dividido raiz de n-1
+			armarY(trainLabels, Y, 10);
+			autovalores = plsda(train,Y,gamma_plsda,V, niter, epsilon);//¡¡¡OJO!!! ROMPE TRAIN
+			imprimir(autovalores, archivoSalida,true);
+			W = A_por_Bt(X,V);
+			Z = A_por_Bt(test,V);
+			for(unsigned int i =0; i < Z.size();i++){
+				buscar(k_vecinos,W,Z[i],indices,distancias);
+				archivoPlsdaResultados << testLabels[i] << " "<< votar(10,trainLabels,indices,distancias) << endl;
+			}
+			indices.clear();
+			distancias.clear();
+		}
+	}
+	if(ejecutarCompleto){
+		armarTrainTestPosta(path, Muestras,train,test,cantMuestras,cantTests,cantPixeles);
+		switch(metodo){
+			case 1:{//kNN
 				archivoKaggle.open("kaggleKnn.out");
 				archivoKaggle << "ImageId" << ',' << "Label" << endl;
 				for(unsigned int i =0; i < test.size();i++){
 					buscar(k_vecinos,train,test[i],indices,distancias);
 					archivoKaggle << i +1 << ',' <<  votar(10,labels,indices,distancias)<<endl;
 				}
+				break;
 			}
-			break;
 		case 2://PCA+kNN
 			{
 				archivoKaggle.open("kagglePCA.out");
@@ -250,25 +271,33 @@ int main(int argc, char** argv){
 					cout << "clasificando imagen " << i << endl;
 					archivoKaggle << i +1 << ',' <<  metodoPCA.clasificar(test[i]) << endl;
 				}
+				break;
 			}
-			break;
-		case 3://PLS-DA
-			{
+			case 3:{//PLS-DA
+				archivoKaggle.open("kaglePLSDA.out");
+				archivoKaggle << "ImageId" << ',' << "Label" << endl;
+				indices.clear();
+				distancias.clear();
+				V.clear();
+				W.clear();
+				X.clear();
+				Y.clear();
+				Z.clear();
+				medias.clear();
 				medias = preprocesarTrain(train);
 				preprocesarTest(test,medias);
-				archivoKaggle.open("subida.out");
+				X=copiar(train);//centrado en la media y dividido raiz de n-1
 				armarY(labels, Y, 10);
-				autovalores = plsda(train,Y,gamma_plsda,V, niter, epsilon);
-				//armar la matriz convertida en train
-				//convertir test de la misma manera que train
-				archivoKaggle << "ImageId" << ',' << "Label" << endl;
-				for(unsigned int i =0; i < test.size();i++){
-					buscar(k_vecinos,train,test[i],indices,distancias);
+				autovalores = plsda(X,Y,gamma_plsda,V, niter, epsilon);//¡¡¡OJO!!! ROMPE TRAIN
+				W = A_por_Bt(train,V);
+				Z = A_por_Bt(test,V);
+				for(unsigned int i =0; i < Z.size();i++){
+					buscar(k_vecinos,W,Z[i],indices,distancias);
 					archivoKaggle << i +1 << ',' << votar(10,labels,indices,distancias)<<endl;
 				}
+				break;
 			}
-			break;
+		}
 	}
-
 	return 0;
 }
