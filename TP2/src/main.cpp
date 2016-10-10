@@ -58,13 +58,13 @@ void leerConfiguracionExperimento(ifstream &archivoEntrada,string &path, int &k_
 	getline(archivoEntrada,descarte);
 }
 
-void inicializar(int &metodo,ifstream &archivoEntrada,ofstream &archivoSalida,ofstream &archivoCosas, int &niter, int &cantPixeles, int &cantMuestras,int &cantTests,bool &ejecutarFold, bool &ejecutarCompleto, string &path, int &k_vecinos, int &alfa_pca, int &gamma_plsda, int &K_folds,int argc, char** argv){
+void inicializar(int &metodo,ifstream &archivoEntrada,ofstream &archivoSalida,string &salida, int &niter, int &cantPixeles, int &cantMuestras,int &cantTests,bool &ejecutarFold, bool &ejecutarCompleto, string &path, int &k_vecinos, int &alfa_pca, int &gamma_plsda, int &K_folds,int argc, char** argv){
 	if (argc < 4) {
 		cout << "Error de cantidad de parametros" << endl;
 		exit(0);
 	}
 	string entrada = argv[1];
-	string salida = argv[2];
+	salida = argv[2];
 
 	metodo = atoi(argv[3]);
 	archivoEntrada.open(entrada.c_str());
@@ -75,11 +75,6 @@ void inicializar(int &metodo,ifstream &archivoEntrada,ofstream &archivoSalida,of
 	archivoSalida.open(salida.c_str());
 	if(archivoSalida.fail()){
 		cout << "Falla Archivo de salida" << endl;
-		exit(0);
-	}
-	archivoCosas.open((salida+".cosas").c_str());
-	if(archivoSalida.fail()){
-		cout << "Falla Archivo de cosas" << endl;
 		exit(0);
 	}
 	leerConfiguracionGlobal(niter, cantPixeles, cantMuestras, cantTests, ejecutarFold,ejecutarCompleto);
@@ -201,14 +196,16 @@ matrizReal copiar(matrizReal &A){
 int main(int argc, char** argv){
 	int metodo;
 	ifstream archivoEntrada;
-	ofstream archivoSalida,archivoCosas,archivoKaggle;
+	ofstream archivoSalida, archivoKaggle;
 	int niter, cantPixeles, cantMuestras, cantTests;
-	string path;
+	string path,salida;
 	int k_vecinos, alfa_pca, gamma_plsda, K_folds;
-	double epsilon = 0.1e-15;
+	double epsilon = 0.1e-10;
 	bool ejecutarFold,ejecutarCompleto;
 	
-	inicializar(metodo,archivoEntrada,archivoSalida,archivoCosas,niter, cantPixeles, cantMuestras, cantTests, ejecutarFold,ejecutarCompleto, path,k_vecinos, alfa_pca, gamma_plsda, K_folds,argc,argv);
+	ofstream archivoCosas((salida+".cosas").c_str());
+	
+	inicializar(metodo,archivoEntrada,archivoSalida,salida,niter, cantPixeles, cantMuestras, cantTests, ejecutarFold,ejecutarCompleto, path,k_vecinos, alfa_pca, gamma_plsda, K_folds,argc,argv);
 	matrizEntero Muestras(cantMuestras,vectorEntero(cantPixeles,0));//Inicializo una matriz con la cantidad de muestras a tomar y la cantidad de pixeles por muestra
 	vectorEntero labels(cantMuestras,0);
 	armarMatrizTrain(path,Muestras,labels,cantMuestras,cantPixeles);
@@ -219,6 +216,10 @@ int main(int argc, char** argv){
 	vectorEntero indices;
 	vectorReal distancias;
 	
+	ofstream archivoPlsdaResultados((salida+".plsda.resultados").c_str());
+	ofstream archivoPlsdaTiempos((salida+".plsda.tiempos").c_str());
+	ofstream archivoPcaResultados((salida+".pca.resultados").c_str());
+	ofstream archivoPcaTiempos((salida+".pca.tiempos").c_str());
 	
 	if(ejecutarFold){
 		for(int i_fold=0;i_fold<K_folds;i_fold++){
@@ -229,14 +230,12 @@ int main(int argc, char** argv){
 			armarFold(archivoEntrada,Muestras,labels,train,test,trainLabels,testLabels);
 			cout << "fold " << (i_fold+1) << " de " << K_folds << endl << "train: " <<  train.size() << endl << "test: " << test.size() << endl;
 			
-			//preprocesar con PCA -> Escribir los alfa autovalores en salida
-			//pca(train,alfa_pca,V,niter,epsilon);
-			//autovalores = PCA.autovalores();
-			//V = PCA.autovectores();
-			//imprimir(autovalores, archivoSalida,true);
-			//etiquetar con PCA -> Preparar vector para matriz de confusion
-			//.... aca hay que etiquetar
-			
+			PCA metodoPCA = PCA(train, labels, alfa_pca, k_vecinos, niter, epsilon);
+			imprimir(metodoPCA.autovalores, archivoSalida,true);
+			for(unsigned int i =0; i < test.size();i++){
+				archivoPcaResultados << testLabels[i] << ' ' <<  metodoPCA.clasificar(test[i]) << endl;
+			}
+		
 			medias = preprocesarTrain(train);
 			preprocesarTest(test,medias);
 			X=copiar(train);//centrado en la media y dividido raiz de n-1
@@ -247,7 +246,7 @@ int main(int argc, char** argv){
 			Z = A_por_Bt(test,V);
 			for(unsigned int i =0; i < Z.size();i++){
 				buscar(k_vecinos,W,Z[i],indices,distancias);
-				archivoCosas << testLabels[i] << " "<< votar(10,trainLabels,indices,distancias) << endl;
+				archivoPlsdaResultados << testLabels[i] << " "<< votar(10,trainLabels,indices,distancias) << endl;
 			}
 			indices.clear();
 			distancias.clear();
@@ -279,6 +278,7 @@ int main(int argc, char** argv){
 			}
 			case 3:{//PLS-DA
 				archivoKaggle.open("kaglePLSDA.out");
+				archivoKaggle << "ImageId" << ',' << "Label" << endl;
 				indices.clear();
 				distancias.clear();
 				V.clear();
@@ -296,7 +296,7 @@ int main(int argc, char** argv){
 				Z = A_por_Bt(test,V);
 				for(unsigned int i =0; i < Z.size();i++){
 					buscar(k_vecinos,W,Z[i],indices,distancias);
-					archivoKaggle << votar(10,labels,indices,distancias)<<endl;
+					archivoKaggle << i +1 << ',' << votar(10,labels,indices,distancias)<<endl;
 				}
 				break;
 			}
