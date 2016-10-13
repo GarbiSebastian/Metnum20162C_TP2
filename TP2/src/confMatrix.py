@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from __future__ import division
 import sys
 import getopt
 import platform
@@ -10,7 +11,7 @@ import numpy as np
 from numpy import ravel, reshape, swapaxes
 import scipy.io
 from sklearn import svm
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score
 from random import sample
 
 def plot_confusion_matrix(cm, classes,
@@ -26,11 +27,11 @@ def plot_confusion_matrix(cm, classes,
 
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        print("Normalized confusion matrix")
-    else:
-        print('Confusion matrix, without normalization')
+        #print("Normalized confusion matrix")
+    #else:
+        #print('Confusion matrix, without normalization')
 
-    print(cm)
+    #print(cm)
 
     thresh = cm.max() / 2.
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
@@ -56,7 +57,9 @@ def readFile(filename):
 			except:
 				print("error occured in line " + str(i))
 				sys.exit(1)
-	return confusion_matrix(y_true,y_pred,labels)
+	accuracy = accuracy_score(y_true, y_pred, True)
+	confMatrix = confusion_matrix(y_true,y_pred,labels)
+	return accuracy, confMatrix
 
 def readParams(filename):
 	params = ''
@@ -64,28 +67,70 @@ def readParams(filename):
 		params = f.readline().split()
 	return params
 
-def graficar(metodo):
+def promediarTiempos(filename):
+	prom = 0
+	with open(filename) as f:
+		for line in f:
+			prom += int(line)
+	prom = prom / 10
+	return prom
+
+def analizar(metodo):
+	bestAccuracy = 0
+	bestAccuracyTime = 0
+	bestAccuracyParams = ''
+	bestTime = 9999999999999999
+	bestTimeAccuracy = 0
+	bestTimeParams = ''
+	bestRelation = 0
+	bestRelationAccuracy = 0
+	bestRelationTime = 0
+	bestRelationParams = ''
 	for i in xrange(1,12):
 		archivoParams = 'tests/test'+str(i)+'.in'
 		archivoEntrada = 'results/test' + str(i) +'.out.' +metodo+ '.resultados'
+		archivoTiempos = 'results/test' + str(i) +'.out.' +metodo+ '.tiempos'
 		archivoSalida = 'results/test' + str(i) +'.out.' +metodo+ '.confMatrix'
 		params = readParams(archivoParams)
-		confMatrix = readFile(archivoEntrada)
+		accuracy, confMatrix = readFile(archivoEntrada)
 		labels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 		title = ''
+		cantTicks = promediarTiempos(archivoTiempos)
+		relation = accuracy / cantTicks
 		if metodo == 'pca':
-			title = ('k: '+ params[1] + ' alfa: '+ params[2])
+			title = ('k: '+ params[1] + ' alfa: '+ params[2] + '\n accuracy = '+str(accuracy)+' cantidad de ticks promedio: ' + str(cantTicks))
 		else:
-			title = ('k: '+ params[1] + ' gamma: '+ params[3])
+			title = ('k: '+ params[1] + ' gamma: '+ params[3] + '\n accuracy = '+str(accuracy)+' cantidad de ticks promedio: ' + str(cantTicks))
 		plt.figure()
 		plot_confusion_matrix(confMatrix, labels, False, title)
 		#plt.show()
 		plt.savefig(archivoSalida +'.jpg')
 		plt.close()
+		if metodo == 'pca':
+			paramsSTR = 'k: '+ params[1] + ' alfa: '+ params[2]
+		else:
+			paramsSTR = 'k: '+ params[1] + ' gamma: '+ params[3]
+		if accuracy > bestAccuracy :
+			bestAccuracy = accuracy
+			bestAccuracyTime = cantTicks
+			bestAccuracyParams = paramsSTR
+		if cantTicks < bestTime :
+			bestTime = cantTicks
+			bestTimeAccuracy = accuracy
+			bestTimeParams = paramsSTR
+		if relation > bestRelation :
+			bestRelation = relation
+			bestRelationAccuracy = accuracy
+			bestRelationTime = cantTicks
+			bestRelationParams = paramsSTR
+	return '*-- Best Params --*' + '\n' + 'Best Accuracy score:' + '\n' + 'Accuracy: ' +str(bestAccuracy) + ' Ticks: ' + str(bestAccuracyTime) + '\nParams: \n' + bestAccuracyParams + '\n' + 'Lowest Ticks score:' + '\n' + 'Accuracy: ' +str(bestTimeAccuracy) + ' Ticks: ' + str(bestTime) + '\nParams: \n' + bestTimeParams + '\n' + 'Best Accuracy / Ticks score:' + '\nBest Relation: ' + str(bestRelation) + ' \nAccuracy: ' +str(bestRelationAccuracy) + ' Ticks: ' + str(bestRelationTime) + '\nParams: \n' + bestRelationParams + '\n'
+		
 
 def main(argv):
-	graficar('pca')
-	graficar('plsda')
+	print '*-- PCA --*'
+	print analizar('pca')
+	print '*-- PLSDA --*'
+	print analizar('plsda')
 
 
 if __name__ == "__main__":

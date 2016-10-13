@@ -27,7 +27,6 @@ def main(argv):
 		args = ['./tp', archivoEntrada, archivoSalida, metodo]
 		print 'comenzando test' + str(i)
 		process = subprocess.call(args)
-		process.wait()
 		print 'terminado test' + str(i)
 
 
