@@ -236,7 +236,7 @@ int main(int argc, char** argv){
 				archivoPcaResultados << testLabels[i] << ' ' <<  metodoPCA.clasificar(test[i]) << endl;
 			}
 			fin = clock();
-			archivoPcaTiempos << (fin-inicio) << endl;
+			archivoPcaTiempos << ((fin-inicio) / CLOCKS_PER_SEC) << endl;
 					
 			inicio = clock();
 			medias = preprocesarTrain(train);
@@ -252,7 +252,7 @@ int main(int argc, char** argv){
 				archivoPlsdaResultados << testLabels[i] << " "<< votar(10,trainLabels,indices,distancias) << endl;
 			}
 			fin = clock();
-			archivoPlsdaTiempos << (fin-inicio) << endl;
+			archivoPlsdaTiempos << ((fin-inicio) / CLOCKS_PER_SEC) << endl;
 			
 			indices.clear();
 			distancias.clear();
