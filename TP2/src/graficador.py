@@ -8,9 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import itertools
 
-
 def recorrer_archivos():
-<<<<<<< HEAD
 	tiempos_K_param = {}
 	accuracy_K_param = {}
 	tiempos_accuracy = {}
@@ -33,53 +31,8 @@ def recorrer_archivos():
 	graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param)
 	graficar_tabla_fold([40, 50, 60], folds, accuracy_param_fold)
 	plot_grafico_tiempos(3, params, tiempos_K_param, accuracy_K_param)
+	plot_grafico_param(3, params, tiempos_K_param, accuracy_K_param)
 
-def plot_grafico_tiempos(k, params, tiempos_K_param, accuracy_K_param):
-	pca = []
-	plsda = []
-	for j in range(len(params)):
-		(tiempo_PCA, tiempo_PLSDA) = tiempos_K_param.get((k,params[j]))
-		(accuracy_PCA, accuracy_PLSDA) = accuracy_K_param.get((k,params[j]))
-		pca.append((tiempo_PCA, accuracy_PCA))
-		plsda.append((tiempo_PLSDA, accuracy_PLSDA))
-	pca_sorted = sorted(pca, key=lambda tup: tup[0])        
-	plsda_sorted = sorted(plsda, key=lambda tup: tup[0])        
-
-	plt.plot([x[0] for x in pca_sorted], [x[1] for x in pca_sorted])
-
-	plt.xlabel('tiempo (s)')
-	plt.ylabel('Accuracy')
-	plt.title('About as simple as it gets, folks')
-	#plt.grid(True)
-	#plt.savefig("test.png")
-	plt.show()
-=======
-    tiempos_K_param = {}
-    accuracy_K_param = {}
-    tiempos_accuracy = {}
-    tiempos_param = {}
-    accuracy_param_fold = {}
-    ks = [3, 5, 7, 9]
-    params = [10, 20, 30, 40, 50, 60, 70, 80, 90]
-    folds = [10]
-    for k in ks:
-        for param in params:
-            for fold in folds:
-                    #[(tiempo_PCA, tiempo_PLSDA), (accuracy_PCA, accuracy_PLSDA)] = leer(k,param,fold)
-                    tupla = leer(k,param,fold)
-                    tiempos_K_param[(k,param)] = tupla[0]
-                    accuracy_K_param[(k,param)] = tupla[1]
-                    accuracy_param_fold[(param,fold)] = tupla[1]
-                    tiempos_accuracy[tupla[1]] = tupla[0]
-                    tiempos_param[param] = tupla[0]
-    #graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param)
-    #plot_grafico_tiempos(3, params, tiempos_K_param, accuracy_K_param)
-    plot_grafico_param(3, params, tiempos_K_param, accuracy_K_param)
-    #print tiempos_K_param.keys()
-    #print accuracy_K_param.keys()
-    #print tiempos_accuracy.keys()
-    #print tiempos_param.keys()
-    #print accuracy_param_fold.keys()
 
 def plot_grafico_tiempos(k, params, tiempos_K_param, accuracy_K_param):
     pca = []
@@ -90,16 +43,18 @@ def plot_grafico_tiempos(k, params, tiempos_K_param, accuracy_K_param):
         pca.append((tiempo_PCA, accuracy_PCA))
         plsda.append((tiempo_PLSDA, accuracy_PLSDA))
     pca_sorted = sorted(pca, key=lambda tup: tup[0])        
-    plsda_sorted = sorted(plsda, key=lambda tup: tup[0])        
+    plsda_sorted = sorted(plsda, key=lambda tup: tup[0])
+    listas = [('PCA', pca_sorted), ('PLSDA', plsda_sorted)]        
 
-    plt.plot([x[0] for x in pca_sorted], [x[1] for x in pca_sorted])
+    for (title, lista) in listas:
+	    plt.plot([x[0] for x in lista], [x[1] for x in lista])
 
-    plt.xlabel('tiempo (s)')
-    plt.ylabel('Accuracy')
-    plt.title('')
-    #plt.grid(True)
-    #plt.savefig("test.png")
-    plt.show()
+	    plt.xlabel('tiempo (s)')
+	    plt.ylabel('Accuracy')
+	    plt.title(title)
+	    #plt.grid(True)
+	    #plt.savefig("test.png")
+	    plt.show()
 
 def plot_grafico_param(k, params, tiempos_K_param, accuracy_K_param):
     pca = []
@@ -110,17 +65,18 @@ def plot_grafico_param(k, params, tiempos_K_param, accuracy_K_param):
         pca.append((params[j], accuracy_PCA))
         plsda.append((params[j], accuracy_PLSDA))
     pca_sorted = sorted(pca, key=lambda tup: tup[0])        
-    plsda_sorted = sorted(plsda, key=lambda tup: tup[0])        
+    plsda_sorted = sorted(plsda, key=lambda tup: tup[0])
+    listas = [('PCA', pca_sorted), ('PLSDA', plsda_sorted)]        
 
-    plt.plot([x[0] for x in pca_sorted], [x[1] for x in pca_sorted])
+    for (title, lista) in listas:
+	    plt.plot([x[0] for x in lista], [x[1] for x in lista])
 
-    plt.xlabel('Param')
-    plt.ylabel('Accuracy')
-    plt.title('')
-    #plt.grid(True)
-    #plt.savefig("test.png")
-    plt.show()
->>>>>>> 040c47eb3a256d2e65e19b655f698e7229b09e73
+	    plt.xlabel('Param')
+	    plt.ylabel('Accuracy')
+	    plt.title(title)
+	    #plt.grid(True)
+	    #plt.savefig("test.png")
+	    plt.show()
 
 
 def graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param):
@@ -215,7 +171,7 @@ def plotConfMatrix(k, param, metodo):
 	confMatrix = confusion_matrix(y_true,y_pred,labels)
 
 	plt.imshow(confMatrix, interpolation='nearest', cmap=plt.cm.Blues)
-	plt.title('Confusion matrix')
+	plt.title('Confusion matrix '+metodo)
 	plt.colorbar()
 	tick_marks = np.arange(len(labels))
 	plt.xticks(tick_marks, labels, rotation=45)
@@ -246,9 +202,8 @@ def graficar_tabla_fold(params, folds, accuracy_param_fold):
 def main(argv):
 	recorrer_archivos()
 	#print("{0:.2f}".format(number))
-	if (len(argv) > 1):
-		if (argv[0] == 'conf'):
-			plotConfMatrix(int(argv[1]),int(argv[2]),argv[3])
+	plotConfMatrix(3, 50, 'pca')
+	plotConfMatrix(3, 50, 'plsda')
 
 
 if __name__ == "__main__":
