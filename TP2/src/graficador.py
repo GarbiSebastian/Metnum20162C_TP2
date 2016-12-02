@@ -1,3 +1,7 @@
+import sys
+from sklearn import svm
+from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import precision_recall_fscore_support as score
 #def obtener_datos():
 #
 	#tiempos_K_param[(k,param)] = (tiempo_PCA, tiempo_PLSDA)
@@ -7,6 +11,9 @@
 	#accuracy_param_fold[(param,fold)] = (accuracy_PCA, accuracy_PLSDA)
 
 def recorrer_archivos():
+	ks = [3, 5, 7, 9]
+	params = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+	folds = [10]
 	for k in ks:
 		for param in params:
 			for fold in folds:
@@ -17,13 +24,14 @@ def recorrer_archivos():
 					tiempos_accuracy[accuracy] = tupla[0]
 					tiempos_param[param] = tupla[0]
 					accuracy_param_fold[(param,fold)] = tupla[1]
+	print accuracy_K_param.keys()
 
 def leer(k,param,fold):
-	for metodo in ['pca', 'plsda']
+	for metodo in ['pca', 'plsda']:
 		y_true = []
 		y_pred = []
-		fresultados = 'test_'+str(k)+'_'+str(param)+'_'+str(fold)+'_42000_0.out.'+metodo+'.resultados'
-		ftiempos = 'test_'+str(k)+'_'+str(param)+'_'+str(fold)+'_42000_0.out.'+metodo+'.tiempos'
+		fresultados = 'results/test_'+str(k)+'_'+str(param)+'_'+str(fold)+'_42000_0.out.'+metodo+'.resultados'
+		ftiempos = 'results/test_'+str(k)+'_'+str(param)+'_'+str(fold)+'_42000_0.out.'+metodo+'.tiempos'
 		with open(fresultados) as f:
 			i = 0
 			for line in f:
@@ -43,7 +51,7 @@ def leer(k,param,fold):
 				except:
 					print("error occured in line " + str(i) + ' of '+ftiempos)
 					sys.exit(1)
-		accuracy = accuracy_score(y_true, y_pred, True)
+		accuracy = sklearn.metrics.accuracy_score(y_true, y_pred, True)
 		tiempos = t/fold
 	if metodo == 'pca':
 		tiempo_PCA = tiempos
