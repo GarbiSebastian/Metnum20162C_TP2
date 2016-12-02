@@ -37,7 +37,8 @@ def recorrer_archivos():
                     tiempos_accuracy[tupla[1]] = tupla[0]
                     tiempos_param[param] = tupla[0]
     #graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param)
-    plot_grafico_tiempos(3, params, tiempos_K_param, accuracy_K_param)
+    #plot_grafico_tiempos(3, params, tiempos_K_param, accuracy_K_param)
+    plot_grafico_param(3, params, tiempos_K_param, accuracy_K_param)
     #print tiempos_K_param.keys()
     #print accuracy_K_param.keys()
     #print tiempos_accuracy.keys()
@@ -59,7 +60,27 @@ def plot_grafico_tiempos(k, params, tiempos_K_param, accuracy_K_param):
 
     plt.xlabel('tiempo (s)')
     plt.ylabel('Accuracy')
-    plt.title('About as simple as it gets, folks')
+    plt.title('')
+    #plt.grid(True)
+    #plt.savefig("test.png")
+    plt.show()
+
+def plot_grafico_param(k, params, tiempos_K_param, accuracy_K_param):
+    pca = []
+    plsda = []
+    for j in range(len(params)):
+        (tiempo_PCA, tiempo_PLSDA) = tiempos_K_param.get((k,params[j]))
+        (accuracy_PCA, accuracy_PLSDA) = accuracy_K_param.get((k,params[j]))
+        pca.append((params[j], accuracy_PCA))
+        plsda.append((params[j], accuracy_PLSDA))
+    pca_sorted = sorted(pca, key=lambda tup: tup[0])        
+    plsda_sorted = sorted(plsda, key=lambda tup: tup[0])        
+
+    plt.plot([x[0] for x in pca_sorted], [x[1] for x in pca_sorted])
+
+    plt.xlabel('Param')
+    plt.ylabel('Accuracy')
+    plt.title('')
     #plt.grid(True)
     #plt.savefig("test.png")
     plt.show()
