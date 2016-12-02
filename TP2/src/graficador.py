@@ -9,14 +9,6 @@ import numpy as np
 import itertools
 
 
-#def obtener_datos():
-#
-    #tiempos_K_param[(k,param)] = (tiempo_PCA, tiempo_PLSDA)
-    #accuracy_K_param[(k,param)] = (accuracy_PCA, accuracy_PLSDA)
-    #tiempos_accuracy[accuracy] = (tiempo_PCA, tiempo_PLSDA)
-    #tiempos_param[param] = (tiempo_PCA, tiempo_PLSDA)
-    #accuracy_param_fold[(param,fold)] = (accuracy_PCA, accuracy_PLSDA)
-
 def recorrer_archivos():
 	tiempos_K_param = {}
 	accuracy_K_param = {}
@@ -38,12 +30,29 @@ def recorrer_archivos():
 					tiempos_param[param] = tupla[0]
 
 	graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param)
-    graficar_tabla_fold(params, folds, accuracy_param_fold)
-	#print tiempos_K_param.keys()
-	#print accuracy_K_param.keys()
-	#print tiempos_accuracy.keys()
-	#print tiempos_param.keys()
-	#print accuracy_param_fold.keys()
+	graficar_tabla_fold([40, 50, 60], folds, accuracy_param_fold)
+	plot_grafico_tiempos(3, params, tiempos_K_param, accuracy_K_param)
+
+def plot_grafico_tiempos(k, params, tiempos_K_param, accuracy_K_param):
+	pca = []
+	plsda = []
+	for j in range(len(params)):
+		(tiempo_PCA, tiempo_PLSDA) = tiempos_K_param.get((k,params[j]))
+		(accuracy_PCA, accuracy_PLSDA) = accuracy_K_param.get((k,params[j]))
+		pca.append((tiempo_PCA, accuracy_PCA))
+		plsda.append((tiempo_PLSDA, accuracy_PLSDA))
+	pca_sorted = sorted(pca, key=lambda tup: tup[0])        
+	plsda_sorted = sorted(plsda, key=lambda tup: tup[0])        
+
+	plt.plot([x[0] for x in pca_sorted], [x[1] for x in pca_sorted])
+
+	plt.xlabel('tiempo (s)')
+	plt.ylabel('Accuracy')
+	plt.title('About as simple as it gets, folks')
+	#plt.grid(True)
+	#plt.savefig("test.png")
+	plt.show()
+
 
 def graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param):
 	tiempos_PCA = np.zeros((len(ks),len(params)))
@@ -64,8 +73,8 @@ def graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param):
 		thresh = matriz.max() / 2.
 		for i, j in itertools.product(range(matriz.shape[0]), range(matriz.shape[1])):
 			plt.text(j, i, matriz[i, j],
-	                 horizontalalignment="center",
-	                 color="black" if matriz[i, j] > thresh else "black")
+					 horizontalalignment="center",
+					 color="black" if matriz[i, j] > thresh else "black")
 
 		plt.tight_layout()
 		plt.imshow(matriz, interpolation='nearest', cmap=plt.cm.Blues)
@@ -78,100 +87,100 @@ def graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param):
 		plt.show()
 
 def leer(k,param,fold):
-    tiempo_PCA = 0
-    accuracy_PCA = 0
-    tiempo_PLSDA = 0
-    accuracy_PLSDA = 0
-    for metodo in ['pca', 'plsda']:
-        y_true = []
-        y_pred = []
-        fresultados = 'results/test_'+str(k)+'_'+str(param)+'_'+str(fold)+'_42000_0.out.'+metodo+'.resultados'
-        ftiempos = 'results/test_'+str(k)+'_'+str(param)+'_'+str(fold)+'_42000_0.out.'+metodo+'.tiempos'
-        with open(fresultados) as f:
-            i = 1
-            for line in f:
-                try:
-                    x, y = [int(n) for n in line.split()]
-                    y_true.append(x)
-                    y_pred.append(y)
-                    i+=1
-                except:
-                    print("error occured in line " + str(i) + ' of '+fresultados)
-                    sys.exit(1)
-        with open(ftiempos) as f:
-            i = 1
-            t = 0
-            for line in f:
-                try:
-                    t+=int(line)
-                    i+=1
-                except:
-                    print("error occured in line " + str(i) + ' of '+ftiempos)
-                    sys.exit(1)
-        accuracy = accuracy_score(y_true, y_pred, True)
-        tiempos = t/fold
-        if metodo == 'pca':
-            tiempo_PCA = tiempos
-            accuracy_PCA = accuracy
-        else:
-            tiempo_PLSDA = tiempos
-            accuracy_PLSDA = accuracy
-    return [(tiempo_PCA, tiempo_PLSDA), (accuracy_PCA, accuracy_PLSDA)]
+	tiempo_PCA = 0
+	accuracy_PCA = 0
+	tiempo_PLSDA = 0
+	accuracy_PLSDA = 0
+	for metodo in ['pca', 'plsda']:
+		y_true = []
+		y_pred = []
+		fresultados = 'results/test_'+str(k)+'_'+str(param)+'_'+str(fold)+'_42000_0.out.'+metodo+'.resultados'
+		ftiempos = 'results/test_'+str(k)+'_'+str(param)+'_'+str(fold)+'_42000_0.out.'+metodo+'.tiempos'
+		with open(fresultados) as f:
+			i = 1
+			for line in f:
+				try:
+					x, y = [int(n) for n in line.split()]
+					y_true.append(x)
+					y_pred.append(y)
+					i+=1
+				except:
+					print("error occured in line " + str(i) + ' of '+fresultados)
+					sys.exit(1)
+		with open(ftiempos) as f:
+			i = 1
+			t = 0
+			for line in f:
+				try:
+					t+=int(line)
+					i+=1
+				except:
+					print("error occured in line " + str(i) + ' of '+ftiempos)
+					sys.exit(1)
+		accuracy = accuracy_score(y_true, y_pred, True)
+		tiempos = t/fold
+		if metodo == 'pca':
+			tiempo_PCA = tiempos
+			accuracy_PCA = accuracy
+		else:
+			tiempo_PLSDA = tiempos
+			accuracy_PLSDA = accuracy
+	return [(tiempo_PCA, tiempo_PLSDA), (accuracy_PCA, accuracy_PLSDA)]
 
 #For confusion matrix
 def plotConfMatrix(k, param, metodo):
-    resultados = 'results/test_'+str(k)+'_'+str(param)+'_10_42000_0.out.'+metodo+'.resultados'
-    y_true = []
-    y_pred = []
-    labels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    with open(resultados) as f:
-        i = 0
-        for line in f:
-            try:
-                x, y = [int(n) for n in line.split()]
-                y_true.append(x)
-                y_pred.append(y)
-            except:
-                print("error occured in line " + str(i))
-                sys.exit(1)
-    confMatrix = confusion_matrix(y_true,y_pred,labels)
+	resultados = 'results/test_'+str(k)+'_'+str(param)+'_10_42000_0.out.'+metodo+'.resultados'
+	y_true = []
+	y_pred = []
+	labels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+	with open(resultados) as f:
+		i = 0
+		for line in f:
+			try:
+				x, y = [int(n) for n in line.split()]
+				y_true.append(x)
+				y_pred.append(y)
+			except:
+				print("error occured in line " + str(i))
+				sys.exit(1)
+	confMatrix = confusion_matrix(y_true,y_pred,labels)
 
-    plt.imshow(confMatrix, interpolation='nearest', cmap=plt.cm.Blues)
-    plt.title('Confusion matrix')
-    plt.colorbar()
-    tick_marks = np.arange(len(labels))
-    plt.xticks(tick_marks, labels, rotation=45)
-    plt.yticks(tick_marks, labels)
+	plt.imshow(confMatrix, interpolation='nearest', cmap=plt.cm.Blues)
+	plt.title('Confusion matrix')
+	plt.colorbar()
+	tick_marks = np.arange(len(labels))
+	plt.xticks(tick_marks, labels, rotation=45)
+	plt.yticks(tick_marks, labels)
 
-    #if normalize:
-    #    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+	#if normalize:
+	#    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
 
-    thresh = confMatrix.max() / 2.
-    for i, j in itertools.product(range(confMatrix.shape[0]), range(confMatrix.shape[1])):
-        plt.text(j, i, confMatrix[i, j],
-                 horizontalalignment="center",
-                 color="white" if confMatrix[i, j] > thresh else "black")
+	thresh = confMatrix.max() / 2.
+	for i, j in itertools.product(range(confMatrix.shape[0]), range(confMatrix.shape[1])):
+		plt.text(j, i, confMatrix[i, j],
+				 horizontalalignment="center",
+				 color="white" if confMatrix[i, j] > thresh else "black")
 
-    plt.tight_layout()
-    plt.ylabel('True label')
-    plt.xlabel('Predicted label')
-    plt.show()
+	plt.tight_layout()
+	plt.ylabel('True label')
+	plt.xlabel('Predicted label')
+	plt.show()
 
-def armar_tabla_fold(params, folds, accuracy_param_fold):
-    tabla = []
-    for param in params:
-        for fold in folds:
-            accuracy = accuracy_param_fold[(param,fold)]
-            tabla.append(fold, accuracy)
-    print tabla
+def graficar_tabla_fold(params, folds, accuracy_param_fold):
+	tabla = []
+	for param in params:
+		for fold in folds:
+			accuracy = accuracy_param_fold[(param,fold)]
+			tabla.append((fold, accuracy))
+	print tabla
 
 def main(argv):
-    recorrer_archivos()
-    #print("{0:.2f}".format(number))
-    if (len(argv) > 1):
-        if (argv[0] == 'conf'):
-            plotConfMatrix(int(argv[1]),int(argv[2]),argv[3])
+	recorrer_archivos()
+	#print("{0:.2f}".format(number))
+	if (len(argv) > 1):
+		if (argv[0] == 'conf'):
+			plotConfMatrix(int(argv[1]),int(argv[2]),argv[3])
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+	main(sys.argv[1:])

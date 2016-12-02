@@ -19,40 +19,22 @@ def createTestingFile(k_knn, param, folds_k, n):
 		for fold in folds:
 			f.write(str(fold).strip('[]')+'\n')
 
-def crearArchivosTesting():
-	for folds_k in xrange(2, 11, 2):
-		for k_knn in xrange(3, 10, 2):
-			for param in xrange(1, 10, 3):
-				createTestingFile(k_knn, param, folds_k, 42000)
-			for param in xrange(10, 100, 10):
-				createTestingFile(k_knn, param, folds_k, 42000)
+def crearArchivosTesting(ks, params, folds, n):
+	for k_knn in ks:
+		for param in params:
+			for folds_k in folds:
+				createTestingFile(k_knn, param, folds_k, n)
 
-def ejecutarArchivosTesting(n):
-	for folds_k in xrange(2, 11, 2):
-		for k_knn in xrange(3, 10, 2):
-			for param in xrange(1, 10, 3):
-				for metodo in xrange(0,2):
+def ejecutarArchivosTesting(ks, params, folds, n):
+	for k_knn in ks:
+		for param in params:
+			for folds_k in folds:
+				for metodo in xrange(0,1):
 					archivoEntrada = 'tests/test_'+str(k_knn)+'_'+str(param)+'_'+str(folds_k)+'_'+str(n)+'.in'
 					archivoSalida = 'results/test_'+str(k_knn)+'_'+str(param)+'_'+str(folds_k)+'_'+str(n)+'_'+str(metodo)+'.out'
 					args = ['./tp', archivoEntrada, archivoSalida, str(metodo)]
 					print 'ejecutando: ', archivoEntrada 
 					process = subprocess.call(args)
-
-def crearMiniTest():
-	#for perc in xrange(10, 30, 10):
-	for k in xrange(3, 6, 1):
-		for param in xrange(1, 3):
-			createTestingFile(k, param, 10)
-
-def ejecutarMiniTests():
-	#for perc in xrange(10, 30, 10):
-	for k in xrange(3, 6, 1):
-		for param in xrange(1, 3):
-			for metodo in xrange(0,2):
-				archivoEntrada = 'tests/test_'+str(k)+'_'+str(param)+'_'+str(10)+'.in'
-				archivoSalida = 'results/test_'+str(k)+'_'+str(param)+'_'+str(10)+'_'+str(metodo)+'.out'
-				args = ['./tp', archivoEntrada, archivoSalida, str(metodo)]
-				process = subprocess.call(args)
 
 def kfolds(k, n):
 	num_folds = k
@@ -64,12 +46,13 @@ def kfolds(k, n):
 		trainings.append(training)
 	return trainings
 
-
 def main(argv):
-	#crearMiniTest()
-	#ejecutarMiniTests()
-	#crearArchivosTesting()
-	ejecutarArchivosTesting(42000)
+	ks = [3]
+	params = [40, 50, 60]
+	folds = [2, 5, 7]
+	n = 42000
+	crearArchivosTesting(ks, params, folds, n)
+	ejecutarArchivosTesting(ks, params, folds, n)
 
 
 if __name__ == "__main__":
