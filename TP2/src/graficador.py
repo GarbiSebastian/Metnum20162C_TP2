@@ -105,6 +105,8 @@ def graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param):
 		plt.imshow(matriz, interpolation='nearest', cmap=plt.cm.Blues)
 		plt.title(title)
 		plt.colorbar()
+		plt.ylabel('k para Knn')
+		plt.xlabel('parametro para ' + title.split(' ')[1])
 		tick_marks = np.arange(len(params))
 		plt.xticks(tick_marks, params, rotation=45)
 		tick_marks = np.arange(len(ks))
