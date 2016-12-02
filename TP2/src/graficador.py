@@ -18,63 +18,84 @@ import itertools
     #accuracy_param_fold[(param,fold)] = (accuracy_PCA, accuracy_PLSDA)
 
 def recorrer_archivos():
-	tiempos_K_param = {}
-	accuracy_K_param = {}
-	tiempos_accuracy = {}
-	tiempos_param = {}
-	accuracy_param_fold = {}
-	ks = [3, 5, 7, 9]
-	params = [10, 20, 30, 40, 50, 60, 70, 80, 90]
-	folds = [10]
-	for k in ks:
-		for param in params:
-			for fold in folds:
-					#[(tiempo_PCA, tiempo_PLSDA), (accuracy_PCA, accuracy_PLSDA)] = leer(k,param,fold)
-					tupla = leer(k,param,fold)
-					tiempos_K_param[(k,param)] = tupla[0]
-					accuracy_K_param[(k,param)] = tupla[1]
-					accuracy_param_fold[(param,fold)] = tupla[1]
-					tiempos_accuracy[tupla[1]] = tupla[0]
-					tiempos_param[param] = tupla[0]
+    tiempos_K_param = {}
+    accuracy_K_param = {}
+    tiempos_accuracy = {}
+    tiempos_param = {}
+    accuracy_param_fold = {}
+    ks = [3, 5, 7, 9]
+    params = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    folds = [10]
+    for k in ks:
+        for param in params:
+            for fold in folds:
+                    #[(tiempo_PCA, tiempo_PLSDA), (accuracy_PCA, accuracy_PLSDA)] = leer(k,param,fold)
+                    tupla = leer(k,param,fold)
+                    tiempos_K_param[(k,param)] = tupla[0]
+                    accuracy_K_param[(k,param)] = tupla[1]
+                    accuracy_param_fold[(param,fold)] = tupla[1]
+                    tiempos_accuracy[tupla[1]] = tupla[0]
+                    tiempos_param[param] = tupla[0]
+    #graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param)
+    plot_grafico_tiempos(3, params, tiempos_K_param, accuracy_K_param)
+    #print tiempos_K_param.keys()
+    #print accuracy_K_param.keys()
+    #print tiempos_accuracy.keys()
+    #print tiempos_param.keys()
+    #print accuracy_param_fold.keys()
 
-	graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param)
-	#print tiempos_K_param.keys()
-	#print accuracy_K_param.keys()
-	#print tiempos_accuracy.keys()
-	#print tiempos_param.keys()
-	#print accuracy_param_fold.keys()
+def plot_grafico_tiempos(k, params, tiempos_K_param, accuracy_K_param):
+    pca = []
+    plsda = []
+    for j in range(len(params)):
+        (tiempo_PCA, tiempo_PLSDA) = tiempos_K_param.get((k,params[j]))
+        (accuracy_PCA, accuracy_PLSDA) = accuracy_K_param.get((k,params[j]))
+        pca.append((tiempo_PCA, accuracy_PCA))
+        plsda.append((tiempo_PLSDA, accuracy_PLSDA))
+    pca_sorted = sorted(pca, key=lambda tup: tup[0])        
+    plsda_sorted = sorted(plsda, key=lambda tup: tup[0])        
+
+    plt.plot([x[0] for x in pca_sorted], [x[1] for x in pca_sorted])
+
+    plt.xlabel('tiempo (s)')
+    plt.ylabel('Accuracy')
+    plt.title('About as simple as it gets, folks')
+    #plt.grid(True)
+    #plt.savefig("test.png")
+    plt.show()
+
 
 def graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param):
-	tiempos_PCA = np.zeros((len(ks),len(params)))
-	tiempos_PLSDA = np.zeros((len(ks),len(params)))
-	accuracies_PCA = np.zeros((len(ks),len(params)))
-	accuracies_PLSDA = np.zeros((len(ks),len(params)))
-	for i in range(len(ks)):
-		for j in range(len(params)):
-			(tiempo_PCA, tiempo_PLSDA) = tiempos_K_param.get((ks[i],params[j]))
-			(accuracy_PCA, accuracy_PLSDA) = accuracy_K_param.get((ks[i],params[j]))
-			tiempos_PCA[i][j] = tiempo_PCA
-			tiempos_PLSDA[i][j] = tiempo_PLSDA
-			accuracies_PCA[i][j] = float("{0:.4f}".format(accuracy_PCA))
-			accuracies_PLSDA[i][j] = float("{0:.4f}".format(accuracy_PLSDA))
-	matrices = [('Tiempos PCA', tiempos_PCA), ('Accuracies PCA', accuracies_PCA), ('Tiempos PLSDA', tiempos_PLSDA), ('Accuracies PLSDA', accuracies_PLSDA)]
-	for (title, matriz) in matrices:
-		print matriz
-		thresh = matriz.max() / 2.
-		for i, j in itertools.product(range(matriz.shape[0]), range(matriz.shape[1])):
-			plt.text(j, i, matriz[i, j],
-	                 horizontalalignment="center",
-	                 color="black" if matriz[i, j] > thresh else "black")
+    tiempos_PCA = np.zeros((len(ks),len(params)))
+    tiempos_PLSDA = np.zeros((len(ks),len(params)))
+    accuracies_PCA = np.zeros((len(ks),len(params)))
+    accuracies_PLSDA = np.zeros((len(ks),len(params)))
+    for i in range(len(ks)):
+        for j in range(len(params)):
+            (tiempo_PCA, tiempo_PLSDA) = tiempos_K_param.get((ks[i],params[j]))
+            (accuracy_PCA, accuracy_PLSDA) = accuracy_K_param.get((ks[i],params[j]))
+            tiempos_PCA[i][j] = tiempo_PCA
+            tiempos_PLSDA[i][j] = tiempo_PLSDA
+            accuracies_PCA[i][j] = float("{0:.4f}".format(accuracy_PCA))
+            accuracies_PLSDA[i][j] = float("{0:.4f}".format(accuracy_PLSDA))
+    matrices = [('Tiempos PCA', tiempos_PCA), ('Accuracies PCA', accuracies_PCA), ('Tiempos PLSDA', tiempos_PLSDA), ('Accuracies PLSDA', accuracies_PLSDA)]
+    for (title, matriz) in matrices:
+        print matriz
+        thresh = matriz.max() / 2.
+        for i, j in itertools.product(range(matriz.shape[0]), range(matriz.shape[1])):
+            plt.text(j, i, matriz[i, j],
+                     horizontalalignment="center",
+                     color="black" if matriz[i, j] > thresh else "black")
 
-		plt.tight_layout()
-		plt.imshow(matriz, interpolation='nearest', cmap=plt.cm.Blues)
-		plt.title(title)
-		plt.colorbar()
-		tick_marks = np.arange(len(params))
-		plt.xticks(tick_marks, params, rotation=45)
-		tick_marks = np.arange(len(ks))
-		plt.yticks(tick_marks, ks)
-		plt.show()
+        plt.tight_layout()
+        plt.imshow(matriz, interpolation='nearest', cmap=plt.cm.Blues)
+        plt.title(title)
+        plt.colorbar()
+        tick_marks = np.arange(len(params))
+        plt.xticks(tick_marks, params, rotation=45)
+        tick_marks = np.arange(len(ks))
+        plt.yticks(tick_marks, ks)
+        plt.show()
 
 def leer(k,param,fold):
     tiempo_PCA = 0
