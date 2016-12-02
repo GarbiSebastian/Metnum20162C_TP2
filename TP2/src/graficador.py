@@ -11,6 +11,11 @@ from sklearn.metrics import precision_recall_fscore_support as score
 	#accuracy_param_fold[(param,fold)] = (accuracy_PCA, accuracy_PLSDA)
 
 def recorrer_archivos():
+	tiempos_K_param = {}
+	accuracy_K_param = {}
+	tiempos_accuracy = {}
+	tiempos_param = {}
+	accuracy_param_fold = {}
 	ks = [3, 5, 7, 9]
 	params = [10, 20, 30, 40, 50, 60, 70, 80, 90]
 	folds = [10]
@@ -21,29 +26,39 @@ def recorrer_archivos():
 					tupla = leer(k,param,fold)
 					tiempos_K_param[(k,param)] = tupla[0]
 					accuracy_K_param[(k,param)] = tupla[1]
-					tiempos_accuracy[accuracy] = tupla[0]
-					tiempos_param[param] = tupla[0]
 					accuracy_param_fold[(param,fold)] = tupla[1]
+					tiempos_accuracy[tupla[1]] = tupla[0]
+					tiempos_param[param] = tupla[0]
+	print tiempos_K_param.keys()
 	print accuracy_K_param.keys()
+	print tiempos_accuracy.keys()
+	print tiempos_param.keys()
+	print accuracy_param_fold.keys()
 
 def leer(k,param,fold):
+	tiempo_PCA = 0
+	accuracy_PCA = 0
+	tiempo_PLSDA = 0
+	accuracy_PLSDA = 0
 	for metodo in ['pca', 'plsda']:
 		y_true = []
 		y_pred = []
 		fresultados = 'results/test_'+str(k)+'_'+str(param)+'_'+str(fold)+'_42000_0.out.'+metodo+'.resultados'
 		ftiempos = 'results/test_'+str(k)+'_'+str(param)+'_'+str(fold)+'_42000_0.out.'+metodo+'.tiempos'
 		with open(fresultados) as f:
-			i = 0
+			i = 1
 			for line in f:
 				try:
 					x, y = [int(n) for n in line.split()]
 					y_true.append(x)
 					y_pred.append(y)
+					i+=1
 				except:
 					print("error occured in line " + str(i) + ' of '+fresultados)
 					sys.exit(1)
 		with open(ftiempos) as f:
-			i = 0
+			i = 1
+			t = 0
 			for line in f:
 				try:
 					t+=int(line)
@@ -51,14 +66,14 @@ def leer(k,param,fold):
 				except:
 					print("error occured in line " + str(i) + ' of '+ftiempos)
 					sys.exit(1)
-		accuracy = sklearn.metrics.accuracy_score(y_true, y_pred, True)
+		accuracy = accuracy_score(y_true, y_pred, True)
 		tiempos = t/fold
-	if metodo == 'pca':
-		tiempo_PCA = tiempos
-		accuracy_PCA = accuracy
-	else:
-		tiempo_PLSDA = tiempos
-		accuracy_PLSDA = accuracy
+		if metodo == 'pca':
+			tiempo_PCA = tiempos
+			accuracy_PCA = accuracy
+		else:
+			tiempo_PLSDA = tiempos
+			accuracy_PLSDA = accuracy
 	return [(tiempo_PCA, tiempo_PLSDA), (accuracy_PCA, accuracy_PLSDA)]
 
 
