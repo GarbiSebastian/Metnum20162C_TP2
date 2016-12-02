@@ -38,6 +38,7 @@ def recorrer_archivos():
 					tiempos_param[param] = tupla[0]
 
 	graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param)
+    graficar_tabla_fold(params, folds, accuracy_param_fold)
 	#print tiempos_K_param.keys()
 	#print accuracy_K_param.keys()
 	#print tiempos_accuracy.keys()
@@ -155,6 +156,14 @@ def plotConfMatrix(k, param, metodo):
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.show()
+
+def armar_tabla_fold(params, folds, accuracy_param_fold):
+    tabla = []
+    for param in params:
+        for fold in folds:
+            accuracy = accuracy_param_fold[(param,fold)]
+            tabla.append(fold, accuracy)
+    print tabla
 
 def main(argv):
     recorrer_archivos()
