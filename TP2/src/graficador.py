@@ -1,5 +1,7 @@
 import sys
-from sklearn import svm
+import matplotlib.pyplot as plt
+import itertools
+import numpy as np
 from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.metrics import precision_recall_fscore_support as score
 #def obtener_datos():
@@ -29,11 +31,45 @@ def recorrer_archivos():
 					accuracy_param_fold[(param,fold)] = tupla[1]
 					tiempos_accuracy[tupla[1]] = tupla[0]
 					tiempos_param[param] = tupla[0]
-	print tiempos_K_param.keys()
-	print accuracy_K_param.keys()
-	print tiempos_accuracy.keys()
-	print tiempos_param.keys()
-	print accuracy_param_fold.keys()
+
+	graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param)
+	#print tiempos_K_param.keys()
+	#print accuracy_K_param.keys()
+	#print tiempos_accuracy.keys()
+	#print tiempos_param.keys()
+	#print accuracy_param_fold.keys()
+
+def graficar_matrices_k_param(ks, params, tiempos_K_param, accuracy_K_param):
+	tiempos_PCA = np.zeros((len(ks),len(params)))
+	tiempos_PLSDA = np.zeros((len(ks),len(params)))
+	accuracies_PCA = np.zeros((len(ks),len(params)))
+	accuracies_PLSDA = np.zeros((len(ks),len(params)))
+	for i in range(len(ks)):
+		for j in range(len(params)):
+			(tiempo_PCA, tiempo_PLSDA) = tiempos_K_param.get((ks[i],params[j]))
+			(accuracy_PCA, accuracy_PLSDA) = accuracy_K_param.get((ks[i],params[j]))
+			tiempos_PCA[i][j] = tiempo_PCA
+			tiempos_PLSDA[i][j] = tiempo_PLSDA
+			accuracies_PCA[i][j] = accuracy_PCA
+			accuracies_PLSDA[i][j] = accuracy_PLSDA
+	matrices = [('Tiempos PCA', tiempos_PCA), ('Accuracies PCA', accuracies_PCA), ('Tiempos PLSDA', tiempos_PLSDA), ('Accuracies PLSDA', accuracies_PLSDA)]
+	for (title, matriz) in matrices:
+		print matriz
+		thresh = matriz.max() / 2.
+		for i, j in itertools.product(range(matriz.shape[0]), range(matriz.shape[1])):
+			plt.text(j, i, matriz[i, j],
+	                 horizontalalignment="center",
+	                 color="white" if matriz[i, j] > thresh else "black")
+
+		plt.tight_layout()
+		plt.imshow(matriz, interpolation='nearest', cmap=plt.cm.Blues)
+		plt.title(title)
+		plt.colorbar()
+		tick_marks = np.arange(len(params))
+		plt.xticks(tick_marks, params, rotation=45)
+		tick_marks = np.arange(len(ks))
+		plt.yticks(tick_marks, ks)
+		plt.show()
 
 def leer(k,param,fold):
 	tiempo_PCA = 0
